@@ -1,0 +1,78 @@
+---
+title: React中使用Vanta.js
+---
+
+import CodeSandBox from "../../components/CodeSandBox";
+
+## Vanta.js 介绍
+
+`vanta.js`是一个轻量的 3D 动画效果库,内置了丰富的 3D 动画效果,可选择基于`three.js`(基于 WebGL)或者`p5.js`渲染。
+在支持原生 HTML 的同时也支持三大框架。
+
+## Vanta.js 踩坑记录
+
+- 使用`three.js`作为引擎时无法使用最新版本,详情可以[点击此处查看](https://github.com/tengbao/vanta/issues/101)
+- 在 typescript 中使用没有@types 声明(此问题是 JavaScript 包通用问题)
+
+## Vanta.js 问题解决方法
+
+- 使用固定版本`0.124.0`的`three.js`
+- 在项目文件中`tsconfig.json`中添加`"typeRoots": ["types"]`,在项目更目录新建`types/index.d.ts`补全包的声明。
+
+### 相关代码
+
+```json title="/tsconfig.json"
+{
+  // This file is not used in compilation. It is here just for a nice editor experience.
+  "extends": "@tsconfig/docusaurus/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "typeRoots": ["types"]
+  }
+}
+```
+
+```ts title="/types/index.d.ts"
+declare module "vanta/dist/vanta.birds.min" {
+  function BIRDS(props: any): void;
+  export = BIRDS;
+}
+
+declare module "vanta/dist/vanta.fog.min" {
+  function FOG(props: any): void;
+  export = FOG;
+}
+
+declare module "vanta/dist/vanta.waves.min" {
+  function WAVES(props: any): void;
+  export = WAVES;
+}
+
+declare module "vanta/dist/vanta.clouds.min" {
+  function CLOUDS(props: any): void;
+  export = CLOUDS;
+}
+
+declare module "vanta/dist/vanta.clouds2.min" {
+  function CLOUDS2(props: any): void;
+  export = CLOUDS2;
+}
+
+declare module "vanta/dist/vanta.rings.min" {
+  function RINGS(props: any): void;
+  export = RINGS;
+}
+
+declare module "vanta/dist/vanta.halo.min" {
+  function HALO(props: any): void;
+  export = HALO;
+}
+```
+
+## 线上示例
+
+<CodeSandBox
+  url={
+    "https://codesandbox.io/embed/thirsty-darkness-bws3w?fontsize=14&hidenavigation=1&"
+  }
+/>
