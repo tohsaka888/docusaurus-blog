@@ -37,3 +37,12 @@ html[data-theme="dark"] {
 html[data-theme="dark"] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+code {
+  border: none;
+  padding: 0px 3px;
+}
+
+.markdown h2 {
+  cursor: pointer;
+}
