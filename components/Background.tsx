@@ -64,7 +64,10 @@ export default function Background({ children }: Props) {
   }, [vantaEffect]);
   return (
     <div
-      style={{ height: height - 60, width: "100%" }}
+      style={{
+        height: typeof height === "number" ? height - 60 : height,
+        width: "100%",
+      }}
       ref={(refs) => {
         if (refs) {
           vantaRef.current = refs;
