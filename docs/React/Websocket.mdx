@@ -1,3 +1,43 @@
 ---
 title: React + Websocket示例
 ---
+
+import CodeSandBox from "../../components/CodeSandBox";
+
+## Websocket 介绍
+
+:::info
+以下内容摘自维基百科
+:::
+
+WebSocket 是一种网络传输协议，可在单个 TCP 连接上进行全双工通信，位于 OSI 模型的应用层。WebSocket 协议在 2011 年由 IETF 标准化为 RFC 6455，后由 RFC 7936 补充规范。Web IDL 中的 WebSocket API 由 W3C 标准化。
+
+WebSocket 使得客户端和服务器之间的数据交换变得更加简单，允许服务端主动向客户端推送数据。在 WebSocket API 中，浏览器和服务器只需要完成一次握手，两者之间就可以创建持久性的连接，并进行双向数据传输。
+
+[点击此处查看详细介绍](https://zh.wikipedia.org/wiki/WebSocket)
+
+## 在 React 中使用 Websocket
+
+### 思路
+
+首先 Websocket 是一个持久性的连接,可以进行双向连接,那么理想的情况是: 建立一次 Websocket 连接,直到用户关闭会话才断开连接。
+
+所以我们可以使用`Context Hook`去传递建立的 Websocket,而我们只需要在最顶层容器去创建`Websocket`。在子组件中通过 Effect Hook 去获取服务器发来的消息,使用`send`方法去向服务器发送消息。
+
+:::warning
+关于 websocket 事件和 Effect Hook 结合使用需要注意:
+
+Websocket 的事件,如: `onopen`,`onerror`,`onmessage`......,相当于事件监听器,需要清除副作用(Side Effect)
+:::
+
+### Github 示例
+
+[Github 仓库代码点击此处查看](https://github.com/tohsaka888/react-websocket)
+
+### 在线示例
+
+<CodeSandBox
+  url={
+    "https://codesandbox.io/embed/react-websocket-eeuds?fontsize=14&hidenavigation=1&"
+  }
+/>
