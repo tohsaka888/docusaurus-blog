@@ -53,7 +53,7 @@ const config = {
         items: [
           {
             type: 'doc',
-            docId: 'React/react',
+            docId: 'React/vantajs',
             position: 'left',
             label: '文档',
           },
