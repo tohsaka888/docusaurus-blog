@@ -37,12 +37,15 @@ const config = {
       }),
     ],
   ],
-
+  themes: ['@docusaurus/theme-search-algolia'],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       colorMode: {
         respectPrefersColorScheme: true
+      },
+      algolia: {
+
       },
       navbar: {
         title: 'Tohsaka888的个人博客',
