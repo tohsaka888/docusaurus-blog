@@ -13,7 +13,7 @@
   --ifm-color-primary-light: #529cff;
   --ifm-color-primary-lighter: #61a5ff;
   --ifm-color-primary-lightest: #8fbfff;
-  --blog-item-shadow: 20px 20px 60px #ced1d6,-20px -20px 60px #fff;
+  --blog-item-shadow: 20px 20px 60px #ced1d6, -20px -20px 60px #fff;
 }
 
 html[data-theme="dark"] {
@@ -25,6 +25,8 @@ html[data-theme="dark"] {
   --ifm-color-primary-lighter: #61a5ff;
   --ifm-color-primary-lightest: #8fbfff;
   --blog-item-shadow: 20px 20px 60px #253748, -20px -20px 60px #253748;
+  --ifm-heading-font-family: Roboto, Verdana, "Raleway", "PingFang SC",
+    "Microsoft Yahei", sans-serif;
 }
 
 .docusaurus-highlight-code-line {
@@ -43,6 +45,20 @@ code {
   padding: 0px 3px;
 }
 
+.markdown h1 {
+  font-size: 2rem;
+}
+
 .markdown h2 {
   cursor: pointer;
+  font-size: 1.75rem;
+  font-family: var(--ifm-heading-font-family);
+  border-bottom: 2px solid var(--ifm-color-primary);
+}
+
+.markdown > h2:before {
+  background: #338bff;
+  color: transparent;
+  content: ".";
+  margin-right: 8px;
 }
