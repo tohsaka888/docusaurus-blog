@@ -1,12 +1,12 @@
 import React, { ReactNode } from "react";
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
 
 type Props = {
   url: string;
 };
 
 function CodeSandBox({ url }: Props) {
-  const { isDarkTheme } = useThemeContext();
+  const { isDarkTheme } = useColorMode();
   const theme = isDarkTheme ? "dark" : "light";
   return (
     <iframe
