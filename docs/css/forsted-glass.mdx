@@ -1,0 +1,86 @@
+---
+title: css毛玻璃特效
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 开始之前
+
+首先我们介绍及格 css 属性
+
+### clip-path 属性
+
+`clip-path` CSS 属性使用裁剪方式创建元素的可显示区域。区域内的部分显示，区域外的隐藏。
+[点击此处查看 mdn 上的解释](https://developer.mozilla.org/zh-CN/docs/Web/CSS/clip-path)
+
+### inset 属性
+
+`inset`是对应于`top`,`right`,`bottom`,'left'的简写。它和`margin`具有相同的语法。(顺时针)
+
+```css title="inset属性示例"
+inset: 10px; /* 距离上右下左都是10px */
+inset: 4px 8px; /* top/bottom left/right */
+inset: 2.4em 3em 3em 3em; /* top right bottom left */
+```
+
+### calc()
+
+calc() 此 CSS 函数允许在声明 CSS 属性值时执行一些计算。它可以用在如下场合：`<length>`、`<frequency>`, `<angle>`、`<time>`、`<percentage>`、`<number>`、或 `<integer>`。
+
+#### 语法
+
+```css title="calc()语法"
+/* property: calc(expression) */
+width: calc(100% - 80px);
+height: calc(100vh - 10%);
+```
+
+此 calc()函数用一个表达式作为它的参数，用这个表达式的结果作为值。这个表达式可以是任何如下操作符的组合，采用标准操作符处理法则的简单表达式。
+:::info
+- `+` 和 `-` 运算符的两边必须要有空白字符。比如，calc(50% -8px) 会被解析成为一个无效的表达式，解析结果是：一个百分比 后跟一个负数长度值。而加有空白字符的、有效的表达式 calc(8px + -50%) 会被解析成为：一个长度 后跟一个加号 再跟一个负百分比。
+- `*` 和 `/` 这两个运算符前后不需要空白字符，但如果考虑到统一性，仍然推荐加上空白符。
+- 用 `0` 作除数会使 `HTML` 解析器抛出异常。
+- 涉及自动布局和固定布局的表格中的表列、表列组、表行、表行组和表单元格的宽度和高度百分比的数学表达式，auto 可视为已指定。
+- `calc()` 函数支持嵌套，但支持的方式是：把被嵌套的 `calc()` 函数全当成普通的括号。（译者注：所以，函数内直接用括号就好了。）
+:::
+
+[点击此处查看`calc()`详细文档](<https://developer.mozilla.org/zh-CN/docs/Web/CSS/calc()>)
+
+### filter 属性
+
+filter CSS 属性将模糊或颜色偏移等图形效果应用于元素。滤镜通常用于调整图像，背景和边框的渲染。
+
+**我们就筛选几个来看一下:**
+
+#### `blur()`
+
+`blur()` 函数将高斯模糊应用于输入图像。radius 定义了高斯函数的标准偏差值，或者屏幕上有多少像素相互融合，因此，较大的值将产生更多的模糊。若没有设置值，默认为 0。该参数可以指定为 CSS 长度，**但不接受百分比值**。
+
+#### `drop-shadow()`
+drop-shadow() 函数对输入图像应用阴影效果。阴影可以设置模糊度的，以特定颜色画出的遮罩图的偏移版本，最终合成在图像下面。 函数接受`<shadow>`（在 CSS3 背景中定义）类型的值，除了 inset 和 spread 关键字。该函数与已有的 box-shadow 属性很相似；不同之处在于，通过滤镜，一些浏览器为了更好的性能会提供硬件加速。`<shadow>` 参数如下：
+##### `<offset-x>` `<offset-y>` (必须)
+这是设置阴影偏移量的两个 `<length>` 值。 `<offset-x>` 设定水平方向距离，负值会使阴影出现在元素左边。 `<offset-y>`设定垂直距离，负值会使阴影出现在元素上方。查看 `<length>` 了解可能的单位.
+如果两个值都是 0, 则阴影出现在元素正后面 (如果设置了 `<blur-radius>` 且/或 `<spread-radius>` 也会有模糊效果).
+##### `<blur-radius>` (可选)
+这是第三个 `<length>` 值。值越大，越模糊，所以阴影可以变得更大或更淡。不允许负值。若未设定，默认是 0 (则阴影的边界很锐利)。
+##### `<color>` (可选)
+查看 `<color>` 了解该值可能的关键字和标记。若未设定，颜色值基于浏览器 —— 通常是 `<color>` 属性的值，但请注意，在这种情况下，Safari 当前会绘制透明阴影。
+  
+[点击此处查看`filter`属性详细文档](https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter)
+
+## 实现
+
+### 实现思路
+1. 若需要在全局背景图片的情况下实现高斯模糊,我们只能将模糊区域放在背景图片**正中央**,若不需要,那无所谓
+1. 其实我们实在同一块区域内嵌入两张背景图片,第一张图片在最底层,第二张图片只有中间部分显示并且模糊,这样看起来就像是一张图片中间部分模糊了
+1. 文字区域我们需要使用绝对定位才能显示在模糊区域上,并且我们需要通过`calc()`函数根据`inset内设置的值`来设置宽度和高度。
+:::info
+计算方法: 假设`inset(10vh 5vw)`即距离顶部和底部10vh,距离左部右部5vw,那么文字区域的高度就应该是`calc(100% - 2*10vh)`和`calc(100% - 2*5vw)`,
+这么做的理由是,文字区域虽然是绝对定位,但是我们通过`flex`布局将文字区域居中所以实际高度和实际宽度都是减去两倍的间距。
+:::
+
+### 线上示例
+<CodeSandBox url={'https://codesandbox.io/embed/xenodochial-sky-q2k9m?fontsize=14&hidenavigation=1&'} />
