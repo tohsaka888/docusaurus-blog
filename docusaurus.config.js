@@ -23,7 +23,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [
-            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: false}],
+            [require('@docusaurus/remark-plugin-npm2yarn'), { sync: false }],
           ],
           // Please change this to your repo.
           editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
@@ -122,7 +122,8 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        defaultLanguage: 'javascript'
+        defaultLanguage: 'javascript',
+        additionalLanguages: ['powershell', 'vue', 'java'],
       },
     }),
 };
