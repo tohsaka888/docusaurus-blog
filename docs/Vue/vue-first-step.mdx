@@ -1,0 +1,66 @@
+---
+title: Vue3 + typescript + vite学习
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 安装依赖
+
+### 安装Vite
+```bash npm2yarn
+npm create vite
+```
+### 安装vscode插件
+:::info 
+在插件商店搜索`Volar`安装`Vue Language Features (Volar)`
+ 
+或者[点击此处下载安装](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+:::
+
+### 安装Element Ui
+```bash npm2yarn
+npm install element-plus --save
+```
+
+## 配置
+### 配置Element Ui
+在 `tsconfig.json` 中通过 `compilerOptions.type` 指定全局组件类型。
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    // ...
+    "types": ["element-plus/global"]
+  }
+}
+```
+
+### 配置自动导入
+首先你需要安装`unplugin-vue-components` 和 `unplugin-auto-import`这两款插件
+```bash npm2yarn
+npm install -D unplugin-vue-components unplugin-auto-import
+```
+然后把下列代码插入到你的 `Vite` 的配置文件中
+```ts title="vite.config.ts"
+// vite.config.ts
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+
+export default {
+  plugins: [
+    // ...
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
+  ],
+}
+```
+
+## 总结
+OK,至此就配置完了,后续如果有新的包引入或者需要配置会新增至这里,接下来,干就完事了!!
