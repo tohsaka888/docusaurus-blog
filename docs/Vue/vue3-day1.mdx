@@ -7,4 +7,47 @@ import AuthorInfo from "../../components/doc/AuthorInfo";
 
 <AuthorInfo />
 
-## 条件与循环
+## 组件实例 property
+
+我们可以将用户定义的 property 添加到组件实例中，例如 data，methods，props，computed，inject 和 setup。我们将在后面的指南中深入讨论它们。组件实例的所有 property，无论如何定义，都可以在组件的模板中访问。
+ 
+Vue 还通过组件实例暴露了一些内置 property，如 $attrs 和 $emit。这些 property 都有一个 $ 前缀，以避免与用户定义的 property 名冲突。
+
+## 生命周期钩子
+每个组件在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做生命周期钩子的函数，这给了用户在不同阶段添加自己的代码的机会。
+ 
+比如 `created` 钩子可以用来在一个实例被创建之后执行代码：
+```vue title="created示例"
+<script lang="ts">
+
+import { defineComponent } from "vue"
+
+// 要让 TypeScript 正确推断 Vue 组件选项中的类型，需要使用 defineComponent 全局方法定义组件
+export default defineComponent({
+  data() {
+    return {
+      theme: 'light'
+    }
+  },
+  created() {
+    this.theme = 'light' // 赋值操作
+    this.fetchInitData() // 页面渲染前获取数据
+  },
+  methods: {
+    toggleBackground(): void {
+      switch (this.theme) {
+        case 'light':
+          this.theme = 'dark'
+          break;
+        case 'dark':
+          this.theme = 'light'
+      }
+    },
+    fetchInitData(): void {
+
+    }
+  }
+})
+</script>
+```
+也有一些其它的钩子，在实例生命周期的不同阶段被调用，如 mounted、updated 和 unmounted。生命周期钩子的 this 上下文指向调用它的当前活动实例。
