@@ -123,7 +123,7 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
         defaultLanguage: 'javascript',
-        additionalLanguages: ['powershell', 'vue', 'java'],
+        additionalLanguages: ['powershell', 'java'],
       },
     }),
 };
