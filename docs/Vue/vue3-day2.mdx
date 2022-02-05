@@ -1,0 +1,86 @@
+---
+title: Vue3第二天
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## Data Property 和方法
+
+### Data Property
+
+组件的 data 选项是一个函数。Vue 会在创建新组件实例的过程中调用此函数。它应该返回一个对象，然后 Vue 会通过响应性系统将其包裹起来，并以 $data 的形式存储在组件实例中。为方便起见，该对象的任何顶级 property 也会直接通过组件实例暴露出来：
+
+Vue 使用 $ 前缀通过组件实例暴露自己的内置 API。它还为内部 property 保留 \_ 前缀。你应该避免使用这两个字符开头的顶级 data property 名称。
+
+### 方法
+
+我们用 methods 选项向组件实例添加方法，它应该是一个包含所需方法的对象：
+:::warning
+Vue 自动为 methods 绑定 this，以便于它始终指向组件实例。这将确保方法在用作事件监听或回调时保持正确的 this 指向。在定义 methods 时应避免使用箭头函数，因为这会阻止 Vue 绑定恰当的 this 指向。
+:::
+
+### 防抖和节流
+
+开始这一部分之前,我们必须理清一个概念,什么是**副作用**(Side Effect)
+
+在计算机科学中，函数副作用指当调用函数时，除了返回可能的函数值之外，还对主调用函数产生附加的影响。例如修改全局变量（函数外的变量），修改参数，向主调方的终端、管道输出字符或改变外部存储信息等。
+
+在 React 中所有需要清除副作用的函数都应该放在`effect hook`中执行并清除副作用。
+
+我们先来看一下`Effect Hook`是什么样的
+
+1. 你可以把 `useEffect Hook` 看做 `componentDidMount`，c`omponentDidUpdate` 和 `componentWillUnmount` 这三个函数的组合。
+1. `Effect Hook`分为需要清除副作用和不需要清除副作用。
+1. `Effect Hook`在组件卸载的时候执行清除操作。
+
+OK,我们继续学习 Vue
+
+Vue 没有内置支持防抖和节流，但可以使用 `Lodash` 等库来实现。
+
+如果某个组件仅使用一次，可以在 `methods` 中直接应用防抖：
+
+```html
+<script src="https://unpkg.com/lodash@4.17.20/lodash.min.js"></script>
+<script>
+  Vue.createApp({
+    methods: {
+      // 用 Lodash 的防抖函数
+      click: _.debounce(function () {
+        // ... 响应点击 ...
+      }, 500),
+    },
+  }).mount("#app");
+</script>
+```
+
+但是，这种方法对于可复用组件有潜在的问题，因为它们都共享相同的防抖函数。为了使组件实例彼此独立，可以在生命周期钩子的 created 里添加该防抖函数:
+
+```js
+app.component("save-button", {
+  created() {
+    // 使用 Lodash 实现防抖
+    this.debouncedClick = _.debounce(this.click, 500);
+  },
+  unmounted() {
+    // 移除组件时，取消定时器 清除副作用
+    this.debouncedClick.cancel();
+  },
+  methods: {
+    click() {
+      // ... 响应点击 ...
+    },
+  },
+  template: `
+    <button @click="debouncedClick">
+      Save
+    </button>
+  `,
+});
+```
+
+## 本章节设计源码
+
+[点击此处查看源代码](https://github.com/tohsaka888/learn-vue/blob/master/src/components/DebouncingExample.vue)
