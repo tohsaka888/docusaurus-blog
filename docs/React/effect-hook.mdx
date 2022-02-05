@@ -1,0 +1,88 @@
+---
+title: Effect Hook使用详解
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 开始之前
+
+开始这一部分之前,我们必须理清一个概念,什么是**副作用**(Side Effect)
+
+在计算机科学中，函数副作用指当调用函数时，除了返回可能的函数值之外，还对主调用函数产生附加的影响。例如修改全局变量（函数外的变量），修改参数，向主调方的终端、管道输出字符或改变外部存储信息等。
+
+函数执行完除了返回值，还做了其他事情叫 `side effect`,点击按钮触发事件执行一个函数不叫 `side effect`(1)
+
+执行一个函数这个函数有 `side effect` 但是没有导致组件触发 `side effect` 这个组件依然是纯函数组件(2)
+
+## Effect Hook 介绍
+
+`useEffect`内部传递的函数被称为`effect`,`useEffect`放在组件内部一遍`effect`可以直接访问组件内部的`state`或其他`props`。我们不需要特殊的 API 来读取它 —— 它已经保存在函数作用域中。Hook 使用了 JavaScript 的闭包机制，而不用在 JavaScript 已经提供了解决方案的情况下，还引入特定的 React API。
+`useEffect` 会在每次渲染后都执行它在第一次渲染之后和每次更新之后都会执行。（我们稍后会谈到如何控制它。）你可能会更容易接受 effect 发生在“渲染之后”这种概念，不用再去考虑“挂载”还是“更新”。React 保证了每次运行 effect 的同时，DOM 都已经更新完毕。
+
+> 也就是说`effect`在页面渲染前执行
+
+## 详细说明
+
+### 无需清除的`Effect`
+
+```tsx
+useEffect(() => {
+  document.title = `You clicked ${count} times`;
+});
+```
+
+这种`effect`在组件卸载之后不会再执行,所以我们无需清除它。
+
+### 需要清除的`Effect`
+
+之前，我们研究了如何使用不需要清除的副作用，还有一些副作用是需要清除的。例如定时器。这种情况下，清除工作是非常重要的，可以防止引起内存泄露！
+
+#### 示例
+
+<CodeSandBox url="https://codesandbox.io/embed/gracious-currying-cmikp?fontsize=14&hidenavigation=1&" />
+
+在这个例子中.如果我们不清除副作用,那么即便组件卸载,定时器仍然执行,造成内存泄漏。
+
+### 通过跳过 Effect 进行性能优化
+
+如果某些特定值在两次重渲染之间没有发生变化，你可以通知 React 跳过对 effect 的调用，只要传递数组作为 useEffect 的第二个可选参数即可：
+
+```tsx
+useEffect(() => {
+  document.title = `You clicked ${count} times`;
+}, [count]); // 仅在 count 更改时更新
+```
+
+上面这个示例中，我们传入 [count] 作为第二个参数。这个参数是什么作用呢？如果 count 的值是 5，而且我们的组件重渲染的时候 count 还是等于 5，React 将对前一次渲染的 [5] 和后一次渲染的 [5] 进行比较。因为数组中的所有元素都是相等的(5 === 5)，React 会跳过这个 effect，这就实现了性能的优化。
+
+当渲染时，如果 count 的值更新成了 6，React 将会把前一次渲染时的数组 [5] 和这次渲染的数组 [6] 中的元素进行对比。这次因为 5 !== 6，React 就会再次调用 effect。如果数组中有多个元素，即使只有一个元素发生变化，React 也会执行 effect。
+
+### 使用多个 Effect 实现关注点分离
+
+我们可以创建多个`Effect`来分离逻辑,它们可以有不同的依赖项(`deps`),如果我们只用一个`Effect`来实现,那么可以某一个`deps`改变时,
+会触发不必要的更新。
+
+Hook 允许我们按照代码的用途分离他们， 而不是像生命周期函数那样。React 将按照 effect 声明的顺序依次调用组件中的每一个 effect。
+
+:::warning
+注意：
+
+如果你要使用此优化方式，请确保数组中包含了所有外部作用域中会随时间变化并且在 effect 中使用的变量，否则你的代码会引用到先前渲染中的旧变量。参阅文档，了解更多关于如何处理函数以及数组频繁变化时的措施内容。
+
+如果想执行只运行一次的 effect（仅在组件挂载和卸载时执行），可以传递一个空数组（[]）作为第二个参数。这就告诉 React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。这并不属于特殊情况 —— 它依然遵循依赖数组的工作方式。
+
+如果你传入了一个空数组（[]），effect 内部的 props 和 state 就会一直拥有其初始值。尽管传入 [] 作为第二个参数更接近大家更熟悉的 componentDidMount 和 componentWillUnmount 思维模式，但我们有更好的方式来避免过于频繁的重复调用 effect。除此之外，请记得 React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect，因此会使得额外操作很方便。
+
+我们推荐启用 eslint-plugin-react-hooks 中的 exhaustive-deps 规则。此规则会在添加错误依赖时发出警告并给出修复建议。
+:::
+
+## 实例
+扫描二维码登录
+
+<CodeSandBox url="https://codesandbox.io/embed/angry-lovelace-o37xg?fontsize=14&hidenavigation=1&" />
+
+## 源代码
+[点击此处查看二维码登录源代码](https://github.com/tohsaka888/react-effect-example)
