@@ -9,25 +9,32 @@ import AuthorInfo from "../../components/doc/AuthorInfo";
 
 ## 安装依赖
 
-### 安装Vite
+### 安装 Vite
+
 ```bash npm2yarn
 npm create vite
 ```
-### 安装vscode插件
-:::info 
+
+### 安装 vscode 插件
+
+:::info
 在插件商店搜索`Volar`安装`Vue Language Features (Volar)`
- 
+
 或者[点击此处下载安装](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
 :::
 
-### 安装Element Ui
+### 安装 Element Ui
+
 ```bash npm2yarn
 npm install element-plus --save
 ```
 
 ## 配置
-### 配置Element Ui
+
+### 配置 Element Ui
+
 在 `tsconfig.json` 中通过 `compilerOptions.type` 指定全局组件类型。
+
 ```json title="tsconfig.json"
 {
   "compilerOptions": {
@@ -38,16 +45,20 @@ npm install element-plus --save
 ```
 
 ### 配置自动导入
+
 首先你需要安装`unplugin-vue-components` 和 `unplugin-auto-import`这两款插件
+
 ```bash npm2yarn
 npm install -D unplugin-vue-components unplugin-auto-import
 ```
+
 然后把下列代码插入到你的 `Vite` 的配置文件中
+
 ```ts title="vite.config.ts"
 // vite.config.ts
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import AutoImport from "unplugin-auto-import/vite";
+import Components from "unplugin-vue-components/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
 export default {
   plugins: [
@@ -59,8 +70,13 @@ export default {
       resolvers: [ElementPlusResolver()],
     }),
   ],
-}
+};
 ```
 
+## 线上实例
+
+每一章节都有线上实例,[点此此处查看](https://learn-vue-taupe.vercel.app/#/)
+
 ## 总结
+
 OK,至此就配置完了,后续如果有新的包引入或者需要配置会新增至这里,接下来,干就完事了!!
