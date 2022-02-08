@@ -1,0 +1,67 @@
+---
+title: Vue3第四天
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 条件渲染
+
+### `v-if`
+
+v-if 指令用于条件性地渲染一块内容。这块内容只会在指令的表达式返回 truthy 值的时候被渲染。
+
+```html
+<h1 v-if="awesome">Vue is awesome!</h1>
+```
+
+也可以用 v-else 添加一个“else 块”：
+
+```html
+<h1 v-if="awesome">Vue is awesome!</h1>
+<h1 v-else>Oh no 😢</h1>
+```
+
+### 在 `<template>`元素上使用 v-if 条件渲染分组
+
+因为 v-if 是一个指令，所以必须将它添加到一个元素上。但是如果想切换多个元素呢？此时可以把一个 `<template>` 元素当做不可见的包裹元素，并在上面使用 v-if。最终的渲染结果将不包含 `<template>` 元素。
+
+> 类比 React.Fragment
+
+### `v-else`
+
+你可以使用 v-else 指令来表示 v-if 的“else 块”：
+
+```html
+<div v-if="Math.random() > 0.5">Now you see me</div>
+<div v-else>Now you don't</div>
+```
+
+v-else 元素必须紧跟在带 v-if 或者 v-else-if 的元素的后面，否则它将不会被识别。
+
+### `v-else-if`
+
+```html
+<div v-if="type === 'A'">A</div>
+<div v-else-if="type === 'B'">B</div>
+<div v-else-if="type === 'C'">C</div>
+<div v-else>Not A/B/C</div>
+```
+
+与 v-else 的用法类似，v-else-if 也必须紧跟在带 v-if 或者 v-else-if 的元素之后。
+
+### `v-show`
+
+另一个用于条件性展示元素的选项是 v-show 指令。用法大致一样：
+
+```html
+<h1 v-show="ok">Hello!</h1>
+```
+
+不同的是带有 v-show 的元素始终会被渲染并保留在 DOM 中。v-show 只是简单地切换元素的 display CSS property。
+
+注意，v-show 不支持 `<template>` 元素，也不支持 v-else。
+
+

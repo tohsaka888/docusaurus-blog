@@ -34,7 +34,6 @@ export default function Home(): JSX.Element {
       <Background>
         <HomepageHeader />
       </Background>
-
       {/* <main>
         <HomepageFeatures />
       </main> */}
