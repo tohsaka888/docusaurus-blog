@@ -1,0 +1,50 @@
+---
+title: Vue3第六天
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 组件基础
+
+Vue 单文件组件（又名 \*.vue 文件，缩写为 SFC）是一种特殊的文件格式，它允许将 Vue 组件的模板、逻辑 与 样式封装在单个文件中。下面是 SFC 示例：
+
+```vue
+<script>
+export default {
+  data() {
+    return {
+      greeting: "Hello World!",
+    };
+  },
+};
+</script>
+
+<template>
+  <p class="greeting">{{ greeting }}</p>
+</template>
+
+<style>
+.greeting {
+  color: red;
+  font-weight: bold;
+}
+</style>
+```
+
+正如所见，Vue SFC 是经典的 HTML、CSS 与 JavaScript 三个经典组合的自然延伸。每个 \*.vue 文件由三种类型的顶层代码块组成：`<template>`、`<script>` 与 `<style>`：
+
+- `<script>` 部分是一个标准的 JavaScript 模块。它应该导出一个 Vue 组件定义作为其默认导出。
+- `<template>` 部分定义了组件的模板。
+- `<style>` 部分定义了与此组件关联的 CSS。
+
+## 通过 Prop 向子组件传递数据
+
+早些时候，我们提到了创建一个博文组件的事情。问题是如果你不能向这个组件传递某一篇博文的标题或内容之类的我们想展示的数据的话，它是没有办法使用的。这也正是 prop 的由来。
+
+Prop 是你可以在组件上注册的一些自定义 attribute。为了给博文组件传递一个标题，我们可以用 props 选项将其包含在该组件可接受的 prop 列表中：
+
+## 监听子组件事件
+

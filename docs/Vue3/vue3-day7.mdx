@@ -1,0 +1,209 @@
+---
+title: Vue3第七天
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 事件处理
+
+### 监听事件
+
+我们可以使用 v-on 指令 (通常缩写为 @ 符号) 来监听 DOM 事件，并在触发事件时执行一些 JavaScript。用法为 v-on:click="methodName" 或使用快捷方式 @click="methodName"
+
+```html
+<div id="basic-event">
+  <button @click="counter += 1">Add 1</button>
+  <p>The button above has been clicked {{ counter }} times.</p>
+</div>
+```
+
+```js
+Vue.createApp({
+  data() {
+    return {
+      counter: 0,
+    };
+  },
+}).mount("#basic-event");
+```
+
+### 事件处理方法
+
+```html
+<div id="event-with-method">
+  <!-- `greet` 是在下面定义的方法名 -->
+  <button @click="greet">Greet</button>
+</div>
+```
+
+```js
+Vue.createApp({
+  data() {
+    return {
+      name: "Vue.js",
+    };
+  },
+  methods: {
+    greet(event) {
+      // `methods` 内部的 `this` 指向当前活动实例
+      alert("Hello " + this.name + "!");
+      // `event` 是原生 DOM event
+      if (event) {
+        alert(event.target.tagName);
+      }
+    },
+  },
+}).mount("#event-with-method");
+```
+
+### 内联处理器中的方法
+
+```html
+<div id="inline-handler">
+  <button @click="say('hi')">Say hi</button>
+  <button @click="say('what')">Say what</button>
+</div>
+```
+
+```js
+Vue.createApp({
+  methods: {
+    say(message) {
+      alert(message);
+    },
+  },
+}).mount("#inline-handler");
+```
+
+有时也需要在内联语句处理器中访问原始的 `DOM` 事件。可以用特殊变量 `$event` 把它传入方法：
+
+```html
+<button @click="warn('Form cannot be submitted yet.', $event)">Submit</button>
+```
+
+```js
+// ...
+methods: {
+  warn(message, event) {
+    // 现在可以访问到原生事件
+    if (event) {
+      event.preventDefault()
+    }
+    alert(message)
+  }
+}
+```
+
+### 多事件处理器
+
+事件处理程序中可以有多个方法，这些方法由逗号运算符分隔：
+
+```html
+<!-- 这两个 one() 和 two() 将执行按钮点击事件 -->
+<button @click="one($event), two($event)">Submit</button>
+```
+
+```js
+// ...
+methods: {
+  one(event) {
+    // 第一个事件处理器逻辑...
+  },
+  two(event) {
+   // 第二个事件处理器逻辑...
+  }
+}
+```
+
+### 事件修饰符
+
+在事件处理程序中调用 [`event.preventDefault()`](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/preventDefault) 或 [`event.stopPropagation()`](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/stopPropagation) 是非常常见的需求。尽管我们可以在方法中轻松实现这点，但更好的方式是：方法只有纯粹的数据逻辑，而不是去处理 DOM 事件细节。
+
+为了解决这个问题，Vue.js 为 v-on 提供了事件修饰符。之前提过，修饰符是由点开头的指令后缀来表示的。
+
+- `.stop`
+- `.prevent`
+- `.capture`
+- `.self`
+- `.once`
+- `.passive`
+
+```html
+<!-- 阻止单击事件继续冒泡 -->
+<a @click.stop="doThis"></a>
+
+<!-- 提交事件不再重载页面 -->
+<form @submit.prevent="onSubmit"></form>
+
+<!-- 修饰符可以串联 -->
+<a @click.stop.prevent="doThat"></a>
+
+<!-- 只有修饰符 -->
+<form @submit.prevent></form>
+
+<!-- 添加事件监听器时使用事件捕获模式 -->
+<!-- 即内部元素触发的事件先在此处理，然后才交由内部元素进行处理 -->
+<div @click.capture="doThis">...</div>
+
+<!-- 只当在 event.target 是当前元素自身时触发处理函数 -->
+<!-- 即事件不是从内部元素触发的 -->
+<div @click.self="doThat">...</div>
+```
+
+:::tip
+使用修饰符时，顺序很重要；相应的代码会以同样的顺序产生。因此，用 @click.prevent.self 会阻止元素本身及其子元素的点击的默认行为，而 @click.self.prevent 只会阻止对元素自身的点击的默认行为。
+:::
+
+```html
+<!-- 点击事件将只会触发一次 -->
+<a @click.once="doThis"></a>
+```
+
+不像其它只能对原生的 DOM 事件起作用的修饰符，.once 修饰符还能被用到自定义的组件事件上。如果你还没有阅读关于组件的文档，现在大可不必担心。
+
+Vue 还对应 addEventListener 中的 `passive` 选项 提供了 `.passive` 修饰符。
+
+```html
+<!-- 滚动事件的默认行为 (即滚动行为) 将会立即触发，   -->
+<!-- 而不会等待 `onScroll` 完成，                    -->
+<!-- 以防止其中包含 `event.preventDefault()` 的情况  -->
+<div @scroll.passive="onScroll">...</div>
+```
+
+:::tip
+不要把 .passive 和 .prevent 一起使用，因为 .prevent 将会被忽略，同时浏览器可能会向你展示一个警告。请记住，.passive 会告诉浏览器你不想阻止事件的默认行为。
+:::
+
+### 按键修饰符
+
+在监听键盘事件时，我们经常需要检查特定的按键。Vue 允许为 v-on 或者 @ 在监听键盘事件时添加按键修饰符：
+
+```html
+<!-- 只有在 `key` 是 `Enter` 时调用 `vm.submit()` -->
+<input @keyup.enter="submit" />
+```
+
+你可以直接将 `KeyboardEvent.key` 暴露的任意有效按键名转换为 `kebab-case` 来作为修饰符。
+
+```html
+<input @keyup.page-down="onPageDown" />
+```
+
+在上述示例中，处理函数只会在 $event.key 等于 'PageDown' 时被调用。
+
+### 按键别名
+
+Vue 为最常用的键提供了别名：
+
+- `.enter`
+- `.tab`
+- `.delete` (捕获“删除”和“退格”键)
+- `.esc`
+- `.space`
+- `.up`
+- `.down`
+- `.left`
+- `.right`
