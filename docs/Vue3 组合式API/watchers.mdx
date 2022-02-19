@@ -1,0 +1,167 @@
+---
+title: 侦听器
+sidebar_position: 3
+---
+
+## 基本示例
+
+计算属性允许我们声明性地计算派生值。然而，在有些情况下，我们需要对状态的变化展现出犹如有 "副作用" 一般的反应，例如更改 DOM，或基于某异步操作其他状态。
+
+在组合式 API 中，我们可以使用 watch 方法 让每次响应式状态变化时都触发一个回调函数执行：
+
+```html
+<script setup>
+  import { ref, watch } from "vue";
+
+  const question = ref("");
+  const answer = ref("问句通常都会带一个问号。;-)");
+
+  // 直接侦听一个 ref
+  watch(question, async (newQuestion, oldQuestion) => {
+    if (newQuestion.indexOf("?") > -1) {
+      answer.value = "思考中...";
+      try {
+        const res = await fetch("https://yesno.wtf/api");
+        answer.value = (await res.json()).answer;
+      } catch (e) {
+        answer.value = "出错了！无法访问该 API。" + error;
+      }
+    }
+  });
+</script>
+
+<template>
+  <p>
+    提一个 Yes/No 的问题：
+    <input v-model="question" />
+  </p>
+  <p>{{ answer }}</p>
+</template>
+```
+
+## 侦听来源类型
+
+watch 的第一个参数可以是不同类型的响应式 “源”：它可以是一个 ref（包括计算属性），一个响应式对象，一个函数，或是一个数组表示多个源：
+
+```js
+const x = ref(0);
+const y = ref(0);
+
+// 单个 ref
+watch(x, (newX) => {
+  console.log(`x is ${newX}`);
+});
+
+// 函数
+watch(
+  () => x.value + y.value,
+  (sum) => {
+    console.log(`sum of x + y is: ${sum}`);
+  }
+);
+
+// 多个源的数组
+watch([x, () => y.value], ([newX, newY]) => {
+  console.log(`x is ${newX} and y is ${newY}`);
+});
+```
+
+注意，你不能像这样观察一个响应式对象的属性:
+
+```js
+const obj = reactive({ count: 0 });
+
+// 这不会正常工作，因为你是向 watch() 传入了一个 number
+watch(obj.count, (count) => {
+  console.log(`count is: ${count}`);
+});
+```
+
+此时你应该传入一个函数：
+
+```js
+// 提供一个获取函数
+watch(
+  () => obj.count,
+  (count) => {
+    console.log(`count is: ${count}`);
+  }
+);
+```
+
+## 深层侦听器
+
+当你直接对一个响应式对象调用 watch()，会隐式地创建一个深层侦听器，回调会在每个层级更改时都被触发：
+
+```js
+const obj = reactive({ count: 0 });
+
+watch(obj, (newValue, oldValue) => {
+  // 在深层次属性更改时触发
+  // 注意：`newValue` 此处和 `oldValue` 是相等的
+  // 因为它们是同一个对象！
+});
+
+obj.count++;
+```
+
+这种情况应该使用`deep`选项
+
+```js
+watch(
+  () => state.someObject,
+  (newValue, oldValue) => {
+    // 注意：`newValue` 此处和 `oldValue` 是相等的
+    // *除非* state.someObject 被整个替换了
+  },
+  { deep: true }
+);
+```
+
+## watchEffect()
+
+watch() 是懒执行的：回调函数只有在侦听的源更改时才会调用。但某些场景下我们可能希望回调函数能呈积极态调用。举个例子，我们可能会请求一些初始数据，然后在相应状态改变时重新请求。我们可以这样来写：
+
+```js
+const url = ref("https://...");
+const data = ref(null);
+
+async function fetchData() {
+  const response = await fetch(url.value);
+  data.value = await response.json();
+}
+
+// 立即获取
+fetchData();
+// ...再侦听 url 变化
+watch(url, fetchData);
+```
+
+这可以通过 watchEffect 方法 来简化，watchEffect() 使我们可以立即执行一次该副作用，并自动追踪依赖。上面的例子可以重写为：
+
+```js
+watchEffect(async () => {
+  const response = await fetch(url.value);
+  data.value = await response.json();
+});
+```
+
+上面这个例子中，回调会立即执行一次。在执行期间，它会自动追踪 url.value 作为依赖（近似于计算属性）。每当 url.value 变化时，回调将会再次执行。
+
+你可以查看这个使用 watchEffect 的 这个例子，了解如何在运行时做响应式数据请求。
+
+:::info
+用在获取表格数据非常好用,比如,需要传递每页条数和页数来发送网络请求,我们可以定义两个`ref`初值为`0`和`10`,后续根据这两个值变化执行副作用
+就可以获取后续的数据
+:::
+
+:::tip
+watchEffect 仅会在其 **同步** 执行期间追踪依赖。当使用一个异步回调时，只有在第一次 await 前被访问的属性会被追踪为依赖。
+:::
+
+## watch vs. watchEffect
+
+watch 和 watchEffect 都给我们提供了创建副作用的能力。它们之间的主要区别是追踪响应式依赖的方式：
+
+- watch 只跟踪明确监视的源。它不会跟踪任何在回调中访问到的东西。另外，回调仅会在源确实改变了才会被触发，watch 将依赖追踪和副作用区分开，这让我们对如何触发回调有更多的控制权
+- 而 watchEffect 则将依赖追踪和副作用耦合，会自动追踪其同步执行过程中访问到的所有响应式属性。这更方便，一般来说代码也会更简洁，但其响应性依赖关系则不那么显式。
