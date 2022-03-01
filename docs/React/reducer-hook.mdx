@@ -1,0 +1,217 @@
+---
+title: 将状态逻辑提取到 Reducer
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 使用`Reducer`整合状态逻辑
+
+随着您的组件变得越来越复杂，您可能很难一目了然地看到组件状态更新的所有不同方式。例如，TaskApp 下面的组件包含一个 in 状态数组，tasks 并使用三个不同的事件处理程序来添加、删除和编辑任务：
+
+<CodeSandBox url="https://codesandbox.io/embed/optimistic-bush-zihy9l?fontsize=14&hidenavigation=1&" />
+
+它的每个事件处理程序都会调用 setTasks 以更新状态。随着该组件的增长，散布在其中的状态逻辑数量也在增长。为了降低这种复杂性并将所有逻辑保存在一个易于访问的位置，您可以将该状态逻辑移动到组件外部的单个函数中，称为“reducer”。
+
+> 相当于提取所有的逻辑到 Reducer 中,后续如果我们需要添加逻辑,直接写在 Reducer 中就可以,比如我们需要插入一个复制的逻辑
+
+Reducer 是处理状态的另一种方式。您可以通过三个步骤从 useState 迁移到 useReducer
+
+1. 从设置状态转移到调度动作。
+1. 写一个 reducer 函数。
+1. 使用组件中的减速器。
+
+## 第一步: 从设置状态转移到调度动作
+
+您的事件处理程序当前通过设置状态指定要执行的操作：
+
+```tsx
+const handleEdit = (id: number): void => {
+  setTask((task) =>
+    task.map((item) => {
+      if (item.id === id) {
+        return { ...item, edit: !item.edit };
+      } else {
+        return item;
+      }
+    })
+  );
+};
+
+const handleAdd = (value: string) => {
+  setTask((task) => [
+    ...task,
+    { text: value, edit: false, done: false, id: task.length },
+  ]);
+};
+
+const handleSave = (id: number, value: string): void => {
+  setTask((task) =>
+    task.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          text: value,
+        };
+      } else {
+        return item;
+      }
+    })
+  );
+};
+
+const handleDelete = (id: number) => {
+  setTask((task) => task.filter((item) => item.id !== id));
+};
+```
+
+使用 reducer 管理状态与直接设置状态略有不同。不是通过设置状态来告诉 React “做什么”，而是通过从事件处理程序中分派“动作”来指定“用户刚刚做了什么”。（状态更新逻辑将存在于其他地方！）因此，不是 tasks 通过事件处理程序“设置”，而是调度“添加/更改/删除任务”操作。这更能描述用户的意图。
+
+```tsx
+function handleAdd(text) {
+  dispatch({
+    type: "added",
+    text: text,
+  });
+}
+
+function handleEdit(value) {
+  dispatch({
+    type: "changed",
+    text: value,
+  });
+}
+
+function handleDelete(id) {
+  dispatch({
+    type: "deleted",
+    id: id,
+  });
+}
+```
+
+您传递给的对象 dispatch 称为“动作”：
+
+```tsx
+function handleDeleteTask(taskId) {
+  dispatch(
+    // "action" object:
+    {
+      type: "deleted",
+      id: taskId,
+    }
+  );
+}
+```
+
+它是一个常规的 JavaScript 对象。您决定在其中放入什么，但通常它应该包含有关发生的事情的最少信息。（您将 dispatch 在后面的步骤中添加函数本身。）
+
+:::info
+
+### 约定
+
+动作对象可以具有任何形状。按照惯例，通常给它一个 type 描述发生了什么的字符串，并在其他字段中传递任何附加信息。type 是特定于组件的，所以在这个例子中要么 要么会'added'很好'added_task'。选择一个能说明发生了什么的名字！
+
+:::
+
+## 第二步：编写 reducer 函数
+
+reducer 函数是放置状态逻辑的地方。它接受两个参数，当前状态和动作对象，并返回下一个状态：
+
+```tsx
+function yourReducer(state, action) {
+  // return next state for React to set
+}
+```
+
+React 会将状态设置为您从 reducer 返回的状态。
+
+在本例中，要将您的状态设置逻辑从事件处理程序移动到 reducer 函数，您将：
+
+1. 将当前状态 ( tasks) 声明为第一个参数。
+1. 将对象声明 action 为第二个参数。
+1. 从 reducer 返回下一个状态（React 会将状态设置为）。
+
+以下是迁移到 reducer 函数的所有状态设置逻辑：
+
+```tsx
+function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case "added": {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+          edit: false,
+        },
+      ];
+    }
+    case "changed": {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    case "deleted": {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error("Unknown action: " + action.type);
+    }
+  }
+}
+```
+
+:::info
+
+### 约定
+
+约定在 reducer 中使用 switch 语句。使用`if-else`结果是一样的，但是一目了然地阅读 switch 语句会更容易。我们将在本文档的其余部分中使用它们
+
+我们建议将每个 case 块包装到大括号{和}大括号中，这样在不同 cases 内声明的变量不会相互冲突。此外， acase 通常应以 a 结尾 return。如果你忘记了 return，代码会“落空”到下一个 case，这可能会导致错误！
+
+如果你还不习惯 switch 语句，使用 if/else 完全没问题。
+:::
+
+## 第三步：使用组件中的 reducer
+
+最后，您需要将 连接 tasksReducer 到您的组件。确保从 React 导入 useReducerHook：
+
+```tsx
+import { useReducer } from "react";
+```
+
+然后你可以替换 useState：
+
+```tsx
+const [tasks, setTasks] = useState(initialTasks);
+```
+
+像 useReducer 这样：
+
+```tsx
+const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+```
+
+useReducerHook 类似于——useState 你必须向它传递一个初始状态，它返回一个有状态的值和一种设置状态的方法（在本例中为 dispatch 函数）。但这有点不同。
+
+useReducerHook 有两个参数：
+
+- 减速器功能
+- 初始状态
+
+它返回：
+
+- 有状态的值
+- 分派函数（将用户操作“分派”到 reducer）
+
+现在它已经完全接线了！在这里，reducer 在组件文件的底部声明：
+
+<CodeSandBox url="https://codesandbox.io/embed/busy-ardinghelli-lu8qn1?fontsize=14&hidenavigation=1&" />
