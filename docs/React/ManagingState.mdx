@@ -3,8 +3,211 @@ title: React Hook状态管理
 id: managing-state
 ---
 
-## 为什么需要状态管理
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
 
-## 为什么使用Hook来管理状态
+<AuthorInfo />
 
-## 实现原理
+Reducers 让您可以整合组件的状态更新逻辑。Context 使您可以将信息深入传递给其他组件。您可以将化简器和上下文结合在一起来管理复杂屏幕的状态。
+
+## 将 Reducer 与 Context 结合使用
+
+在这个介绍 reducer 的例子中，状态是由 reducer 管理的。reducer 函数包含所有状态更新逻辑，并在此文件的底部声明：
+
+<CodeSandBox url="https://codesandbox.io/embed/sandpack-project-h3oj2?fontsize=14&hidenavigation=1&" />
+
+reducer 有助于使事件处理程序保持简短和简洁。但是，随着您的应用程序的增长，您可能会遇到另一个困难。目前，tasks 状态和 dispatch 函数仅在顶级 TaskApp 组件中可用。要让其他组件读取任务列表或更改它，您必须显式传递当前状态和将其更改为道具的事件处理程序。
+
+例如，TaskApp 将任务列表和事件处理程序传递给 TaskList：
+
+```tsx
+<TaskList
+  tasks={tasks}
+  onChangeTask={handleChangeTask}
+  onDeleteTask={handleDeleteTask}
+/>
+```
+
+并将 TaskList 事件处理程序传递给 Task：
+
+```tsx
+<Task task={task} onChange={onChangeTask} onDelete={onDeleteTask} />
+```
+
+在像这样的一个小例子中，这很有效，但是如果中间有数十或数百个组件，传递所有状态和函数可能会非常令人沮丧！
+
+这就是为什么，作为通过 props 传递它们的替代方法，您可能希望将 tasks 状态和 dispatch 函数都放入 context。这样，TaskApp 树中下面的任何组件都可以读取任务并调度操作，而无需重复的“道具钻探”。
+
+以下是如何将 reducer 与上下文结合使用：
+
+1. 创建上下文。
+1. 将状态和调度放入上下文中。
+1. 在树中的任何地方使用上下文。
+
+## 第一步 创建上下文
+
+useReducerHook 返回当前 tasks 和允许您更新它们的函数 dispatch：
+
+```tsx
+const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+```
+
+要将它们传递到树中，您将创建两个单独的上下文：
+
+- TasksContext 提供当前的任务列表。
+- TasksDispatchContext 提供让组件调度动作的功能。
+
+从单独的文件中导出它们，以便您以后可以从其他文件中导入它们：
+
+```tsx
+import { createContext } from "react";
+
+export const TasksContext = createContext(null);
+export const TasksDispatchContext = createContext(null);
+```
+
+在这里，您将 null 作为默认值传递给两个上下文。实际值将由 TaskApp 组件提供。
+
+## 第二步：将状态和调度放入上下文
+
+现在您可以在 TaskApp 组件中导入这两个上下文。取 tasks 并 dispatch 返回，useReducer()并将它们提供给下面的整个树：
+
+```tsx
+import { TasksContext, TasksDispatchContext } from "./TasksContext.js";
+
+export default function TaskApp() {
+  const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+  // ...
+  return (
+    <TasksContext.Provider value={tasks}>
+      <TasksDispatchContext.Provider value={dispatch}>
+        ...
+      </TasksDispatchContext.Provider>
+    </TasksContext.Provider>
+  );
+}
+```
+
+## 第三步：在树中的任何位置使用上下文
+
+现在您不需要将任务列表或事件处理程序向下传递：
+
+```tsx
+<TasksContext.Provider value={tasks}>
+  <TasksDispatchContext.Provider value={dispatch}>
+    <h1>Day off in Kyoto</h1>
+    <AddTask />
+    <TaskList />
+  </TasksDispatchContext.Provider>
+</TasksContext.Provider>
+```
+
+相反,任何需要任务列表的组件都可以从`TaskContext`中创建
+
+```tsx
+export default function TaskList() {
+  const tasks = useContext(TasksContext);
+  // ...
+```
+
+要更新任务列表，任何组件都可以从上下文中读取 dispatch 函数并调用它：
+
+```tsx
+export default function AddTask({ onAddTask }) {
+  const [text, setText] = useState('');
+  const dispatch = useContext(TasksDispatchContext);
+  // ...
+  return (
+    // ...
+    <button onClick={() => {
+      setText('');
+      dispatch({
+        type: 'added',
+        id: nextId++,
+        text: text,
+      });
+    }}>Add</button>
+    // ...
+```
+
+TaskApp 组件不会向下传递任何事件处理程序，并且也不 TaskList 会将任何事件处理程序传递给 Task 组件。每个组件都读取它需要的上下文：
+
+```tsx
+import { useState, useContext } from "react";
+import { TasksContext, TasksDispatchContext } from "./TasksContext.js";
+
+export default function TaskList() {
+  const tasks = useContext(TasksContext);
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <Task task={task} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Task({ task }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useContext(TasksDispatchContext);
+  let taskContent;
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={(e) => {
+            dispatch({
+              type: "changed",
+              task: {
+                ...task,
+                text: e.target.value,
+              },
+            });
+          }}
+        />
+        <button onClick={() => setIsEditing(false)}>Save</button>
+      </>
+    );
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      </>
+    );
+  }
+  return (
+    <label>
+      <input
+        type="checkbox"
+        checked={task.done}
+        onChange={(e) => {
+          dispatch({
+            type: "changed",
+            task: {
+              ...task,
+              done: e.target.checked,
+            },
+          });
+        }}
+      />
+      {taskContent}
+      <button
+        onClick={() => {
+          dispatch({
+            type: "deleted",
+            id: task.id,
+          });
+        }}
+      >
+        Delete
+      </button>
+    </label>
+  );
+}
+```
+
+<CodeSandBox url="https://codesandbox.io/embed/nervous-kare-5iqkn0?fontsize=14&hidenavigation=1&" />
