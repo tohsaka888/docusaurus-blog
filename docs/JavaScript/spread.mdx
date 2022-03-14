@@ -1,0 +1,39 @@
+---
+title: spread语法
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+```js
+function sum(a, b, c, d, e, f, g) {
+  let sum = 0;
+  sum += a + b + c + d + e + f + g;
+  return sum;
+}
+
+const sumProp = [1, 2, 3, 4, 5, 6, 7];
+
+// spread 语法
+console.log(sum(...sumProp));
+
+const obj1 = { a: 1 };
+const obj2 = obj1;
+
+console.log(JSON.stringify(obj1) === JSON.stringify(obj2)); // value相等
+console.log(obj1 === obj2); // reference 相等
+
+// 浅拷贝
+const obj3 = {};
+Object.assign(obj3, obj1);
+
+console.log(JSON.stringify(obj3) === JSON.stringify(obj2)); // value相等
+console.log(obj3 === obj2); // reference 不相等
+
+// spread 浅拷贝
+const obj4 = { ...obj2 };
+console.log(JSON.stringify(obj4) === JSON.stringify(obj2)); // value相等
+console.log(obj4 === obj2); // reference 不相等
+```
