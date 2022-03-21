@@ -1,0 +1,50 @@
+---
+title: 命令式和响应式
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 什么是命令式,什么是响应式
+
+命令式编程（Imperative）：详细的命令机器怎么（How）去处理一件事情以达到你想要的结果（What）
+声明式编程（ Declarative）：只告诉你想要的结果（What），机器自己摸索过程（How）
+
+```js
+// 命令式
+// 需求: b是a的10倍
+let a = 1
+let b = a * 10 
+
+// 那么当a改变呢
+a = 4
+
+console.log(b) // 10, 我们想要的是40
+
+// emmm,好吧,我们只能....
+b = a * 10
+console.log(b) // 40
+```
+
+那么我们如何实现响应式,当a发生改变,b自动更新呢?
+
+```js
+let state = { a: 1 }
+
+let b
+
+let update = () => {
+  b = state.a * 10
+}
+
+const setState = (newState) => {
+  state = newState
+  update()
+}
+
+setState({ a: 4 })
+
+console.log(b)
+```

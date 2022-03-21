@@ -1,0 +1,70 @@
+---
+title: setInterval函数实际调用间隔比设置的事件短
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+对 `setInterval` 而言，内部的调度程序会每间隔 100 毫秒执行一次 func(i++)
+
+![img](https://zh.javascript.info/article/settimeout-setinterval/setinterval-interval.svg)
+
+注意到了吗？
+
+使用 setInterval 时，func 函数的实际调用间隔要比代码中设定的时间间隔要短！
+
+这也是正常的，因为 func 的执行所花费的时间“消耗”了一部分间隔时间。
+
+也可能出现这种情况，就是 func 的执行所花费的时间比我们预期的时间更长，并且超出了 100 毫秒。
+
+在这种情况下，JavaScript 引擎会等待 func 执行完成，然后检查调度程序，如果时间到了，则 立即 再次执行它。
+
+极端情况下，如果函数每次执行时间都超过 delay 设置的时间，那么每次调用之间将完全没有停顿。
+
+这是嵌套的 setTimeout 的示意图：
+
+![img](https://zh.javascript.info/article/settimeout-setinterval/settimeout-interval.svg)
+
+嵌套的 setTimeout 就能确保延时的固定（这里是 100 毫秒）。
+
+这是因为下一次调用是在前一次调用完成时再调度的。
+
+:::info 垃圾回收和 setInterval/setTimeout 回调（callback）
+当一个函数传入 `setInterval/setTimeout` 时，将为其创建一个内部引用，并保存在调度程序中。这样，即使这个函数没有其他引用，也能防止垃圾回收器（GC）将其回收。
+
+```JS
+// 在调度程序调用这个函数之前，这个函数将一直存在于内存中
+setTimeout(function() {...}, 100);
+```
+
+对于 setInterval，传入的函数也是一直存在于内存中，直到 clearInterval 被调用。
+
+这里还要提到一个副作用。如果函数引用了外部变量（译注：闭包），那么只要这个函数还存在，外部变量也会随之存在。它们可能比函数本身占用更多的内存。因此，当我们不再需要调度函数时，最好取消它，即使这是个（占用内存）很小的函数。
+:::
+
+## 零延时的 setTimeout
+
+这儿有一种特殊的用法：`setTimeout(func, 0)`，或者仅仅是 `setTimeout(func)`。
+
+这样调度可以让 func 尽快执行。但是只有在当前正在执行的脚本执行完成后，调度程序才会调用它。
+
+也就是说，该函数被调度在当前脚本执行完成“之后”立即执行。
+
+例如，下面这段代码会先输出 “Hello”，然后立即输出 “World”：
+
+```JS
+setTimeout(() => alert("World"));
+
+alert("Hello");
+```
+
+第一行代码“将调用安排到日程（calendar）0 毫秒处”。但是调度程序只有在当前脚本执行完毕时才会去“检查日程”，所以先输出 "Hello"，然后才输出 "World"。
+
+:::info 零延时实际上不为零（在浏览器中）
+在浏览器环境下，嵌套定时器的运行频率是受限制的。根据 HTML5 标准 所讲：“经过 5 重嵌套定时器之后，时间间隔被强制设定为至少 4 毫秒”。
+
+让我们用下面的示例来看看这到底是什么意思。其中 setTimeout 调用会以零延时重新调度自身的调用。每次调用都会在 times 数组中记录上一次调用的实际时间。
+:::
+
