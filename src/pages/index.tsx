@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
@@ -6,6 +6,9 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./index.module.css";
 import HomepageFeatures from "../components/HomepageFeatures";
 import Background from "@site/components/Background";
+import DownIcon from "@site/components/HomePage/DownIcon";
+import { PageContext } from "@site/components/Context/PageContext";
+import FirstPage from "@site/components/Spring/FirstPage";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -29,17 +32,20 @@ function HomepageHeader() {
 
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
+  const [page, setPage] = useState<number>(0);
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
-      <Background>
-        <HomepageHeader />
-      </Background>
-      {/* <main>
-        <HomepageFeatures />
-      </main> */}
-    </Layout>
+    <PageContext.Provider value={{ page, setPage }}>
+      <Layout
+        title={`Hello from ${siteConfig.title}`}
+        description="Description will go into a meta tag in <head />"
+      >
+        <Background>
+          <FirstPage>
+            <HomepageHeader />
+          </FirstPage>
+          <DownIcon />
+        </Background>
+      </Layout>
+    </PageContext.Provider>
   );
 }

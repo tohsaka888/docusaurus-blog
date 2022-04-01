@@ -62,3 +62,7 @@ code {
   content: ".";
   margin-right: 8px;
 }
+
+* {
+  overflow-x: hidden;
+}

@@ -67,6 +67,7 @@ export default function Background({ children }: Props) {
       style={{
         height: typeof height === "number" ? height - 60 : height,
         width: "100%",
+        position: "relative",
       }}
       ref={(refs) => {
         if (refs) {
