@@ -39,6 +39,9 @@ function FirstPage({ children }: Props) {
     },
     to: async (next) => {
       await next(showPage(page));
+      if (page !== 0) {
+        await next({ display: "none" });
+      }
     },
   });
   return (
