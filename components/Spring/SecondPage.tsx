@@ -34,7 +34,7 @@ function SecondPage({ children }: Props) {
         height: +height - 60,
       }}
     >
-      SecondPage
+      {children}
     </animated.div>
   );
 }

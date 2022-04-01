@@ -10,6 +10,7 @@ import DownIcon from "@site/components/HomePage/DownIcon";
 import { PageContext } from "@site/components/Context/PageContext";
 import FirstPage from "@site/components/Spring/FirstPage";
 import SecondPage from "@site/components/Spring/SecondPage";
+import Resume from "@site/components/resume";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -44,7 +45,9 @@ export default function Home(): JSX.Element {
           <FirstPage>
             <HomepageHeader />
           </FirstPage>
-          <SecondPage>11111</SecondPage>
+          <SecondPage>
+            <Resume />
+          </SecondPage>
           <DownIcon />
         </Background>
       </Layout>
