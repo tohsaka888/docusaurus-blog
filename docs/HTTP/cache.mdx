@@ -1,0 +1,64 @@
+---
+title: 浏览器缓存
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 强缓存
+
+强缓存：浏览器不会像服务器发送任何请求，直接从本地缓存中读取文件并返回 Status Code: 200 OK
+
+`200 from memory cache`: 不访问服务器，一般已经加载过该资源且缓存在了内存当中，直接从内存中读取缓存。浏览器关闭后，数据将不存在（资源被释放掉了），再次打开相同的页面时，不会出现 from memory cache。
+
+`200 from disk cache`: 不访问服务器，已经在之前的某个时间加载过该资源，直接从硬盘中读取缓存，关闭浏览器后，数据依然存在，此资源不会随着该页面的关闭而释放掉下次打开仍然会是 from disk cache。
+
+:::info
+优先访问 memory cache,其次是 disk cache,最后请求网络资源
+:::
+
+## 协商缓存
+
+协商缓存: 向服务器发送请求，服务器会根据这个请求的 request header 的一些参数来判断是否命中协商缓存，如果命中，则返回 304 状态码并带上新的 response header 通知浏览器从缓存中读取资源
+
+## 强缓存和协商缓存的 header 参数
+
+### 强缓存
+
+`Expires`: 过期时间,如果设置了时间,浏览器会在设置的时间内直接读取缓存,不再请求
+
+`Cache-Control`: 当值设为 max-age=300 时，则代表在这个请求正确返回时间（浏览器也会记录下来）的 5 分钟内再次加载资源，就会命中强缓存。
+
+> cache-control 是 http1.1 的头字段，expires 是 http1.0 的头字段,如果 expires 和 cache-control 同时存在，cache-control 会覆盖 expires，建议两个都写。
+
+### 协商缓存
+
+`Etag`:
+:::info
+Etag 是属于 HTTP 1.1 属性，它是由服务器（Apache 或者其他工具）生成返回给前端，用来帮助服务器控制 Web 端的缓存验证。
+Apache 中，ETag 的值，默认是对文件的索引节（INode），大小（Size）和最后修改时间（MTime）进行 Hash 后得到的。
+:::
+
+`If-None-Match`:
+:::info
+当资源过期时，浏览器发现响应头里有 Etag,则再次向服务器请求时带上请求头 if-none-match(值是 Etag 的值)。服务器收到请求进行比对，决定返回 200 或 304
+:::
+
+`Last-Modified`:
+浏览器向服务器发送资源最后的修改时间
+
+`If-Modified-Since`:
+:::info
+当资源过期时（浏览器判断 Cache-Control 标识的 max-age 过期），发现响应头具有 Last-Modified 声明，则再次向服务器请求时带上头 if-modified-since，表示请求时间。服务器收到请求后发现有 if-modified-since 则与被请求资源的最后修改时间进行对比（Last-Modified）,若最后修改时间较新（大），说明资源又被改过，则返回最新资源，HTTP 200 OK;若最后修改时间较旧（小），说明资源无新修改，响应 HTTP 304 走缓存。
+:::
+
+## 总结
+
+![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/6/16a8bbaefa56810f~tplv-t2oaga2asx-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+1.  先去内存看，如果有，直接加载
+2.  如果内存没有，择取硬盘获取，如果有直接加载
+3.  如果硬盘也没有，那么就进行网络请求
+4.  加载到的资源缓存到硬盘和内存
