@@ -1,0 +1,59 @@
+---
+title: 快速排序
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+快速排序：通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据比另一部分的所有数据要小，再按这种方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，使整个数据变成有序序列。
+
+## 实现步骤
+
+- 选择一个基准元素 target（一般选择第一个数）
+- 将比 target 小的元素移动到数组左边，比 target 大的元素移动到数组右边
+- 分别对 target 左侧和右侧的元素进行快速排序
+
+从上面的步骤中我们可以看出，快速排序也利用了分治的思想（将问题分解成一些小问题递归求解）
+
+下面是对序列 6、1、2、7、9、3、4、5、10、8 排序的过程：
+
+![img](http://www.conardli.top/docs/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F.jpg)
+
+## 写法 1
+
+单独开辟两个存储空间 left 和 right 来存储每次递归比 target 小和大的序列
+
+每次递归直接返回 left、target、right 拼接后的数组
+
+浪费大量存储空间，写法简单
+
+```js
+function quickSort(array) {
+  if (array.length < 2) {
+    return array;
+  }
+  const target = array[0];
+  const left = [];
+  const right = [];
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] < target) {
+      left.push(array[i]);
+    } else {
+      right.push(array[i]);
+    }
+  }
+  return quickSort(left).concat([target], quickSort(right));
+}
+```
+
+## 写法2
+
+记录一个索引l从数组最左侧开始，记录一个索引r从数组右侧开始
+
+在`l<r`的条件下，找到右侧小于target的值array[r]，并将其赋值到array[l]
+
+在`l<r`的条件下，找到左侧大于target的值array[l]，并将其赋值到array[r]
+
+这样让`l=r`时，左侧的值全部小于target，右侧的值全部小于target，将target放到该位置

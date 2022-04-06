@@ -58,6 +58,8 @@ Apache 中，ETag 的值，默认是对文件的索引节（INode），大小（
 
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/6/16a8bbaefa56810f~tplv-t2oaga2asx-zoom-in-crop-mark:1304:0:0:0.awebp)
 
+三层缓存协议:
+
 1.  先去内存看，如果有，直接加载
 2.  如果内存没有，择取硬盘获取，如果有直接加载
 3.  如果硬盘也没有，那么就进行网络请求

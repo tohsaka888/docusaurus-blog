@@ -1,0 +1,74 @@
+---
+title: 实现深搜索(深度遍历对象)
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+例如对于这样一个数组 city 和指定的 code，输出对应的 name：
+
+```js
+var city = [
+  {
+    code: 0,
+    name: "beijing",
+  },
+  {
+    code: 211,
+    name: "jiangsu",
+    children: [
+      {
+        code: 212,
+        name: "nanjing",
+      },
+    ],
+  },
+];
+
+function search(code) {
+  // code
+  return name;
+}
+```
+
+贴一下我的解法和总结吧
+
+```js
+// 递归
+function search(code) {
+  let name = "";
+  function searchName(obj) {
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => {
+        searchName(item);
+      });
+    } else {
+      if (obj.code === code) {
+        name = obj.name;
+      } else {
+        if (obj.children) {
+          searchName(obj.children);
+        }
+      }
+    }
+  }
+  searchName(city);
+  return name;
+}
+
+console.log(search(556));
+
+// 总结:
+// 做这种需要深度遍历对象的一定要注意判断类型是否为数组
+// 附录:
+// 判断数组的方法:
+// 1. Array.isArray()
+// 2. arr.constructor === Array
+// 3. arr instanceof Array
+// 4. Array.prototype.isPrototypeOf(arr)
+// 5. Object.prototype.toString.call(arr) === '[object Array]'
+
+// tips: 不能用typeof进行判断, typeof array === 'object'
+```
