@@ -1,0 +1,42 @@
+---
+title: 获取一个深嵌套对象中的值
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+实现一个 get 函数，用来获取一个深嵌套对象中的值，例如
+
+```js
+var object = { a: [{ b: { c: 3 } }] };
+get(object, "a[0].b.c");
+//应该返回 3
+```
+
+个人解法,仅供参考
+
+```ts
+var object = { a: [{ b: { c: 3 } }] };
+
+const getPropertys = (obj: Object, exp: string) => {
+  const expArr = exp.split(".");
+  let result: any = obj;
+  expArr.forEach((item: string) => {
+    // 数组
+    if (item.includes("[") && item.includes("]")) {
+      const index = +item.split("[")[1].split("]")[0];
+      let key = item.split("[")[0];
+      result = result[key];
+      result = result[index];
+    } else {
+      // 非数组
+      result = result[item];
+    }
+  });
+  return result;
+};
+
+console.log(getPropertys(object, "a[0].b.c"));
+```
