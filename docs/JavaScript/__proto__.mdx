@@ -1,0 +1,111 @@
+---
+title: 原型继承
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+在编程中，我们经常会想获取并扩展一些东西。
+
+例如，我们有一个 user 对象及其属性和方法，并希望将 admin 和 guest 作为基于 user 稍加修改的变体。我们想重用 user 中的内容，而不是复制/重新实现它的方法，而只是在其之上构建一个新的对象。
+
+原型继承（Prototypal inheritance） 这个语言特性能够帮助我们实现这一需求。
+
+## [[Prototype]]
+
+在 JavaScript 中，对象有一个特殊的隐藏属性 [[Prototype]]（如规范中所命名的），它要么为 null，要么就是对另一个对象的引用。该对象被称为“原型”：
+
+当我们从 object 中读取一个缺失的属性时，JavaScript 会自动从原型中获取该属性。在编程中，这被称为“原型继承”。很快，我们将通过很多示例来学习此类继承，以及基于此类继承的更炫酷的语言功能。
+
+属性 [[Prototype]] 是内部的而且是隐藏的，但是这儿有很多设置它的方式。
+
+其中之一就是使用特殊的名字 `__proto__`，就像这样：
+
+```js
+let animal = {
+  eats: true,
+};
+let rabbit = {
+  jumps: true,
+};
+
+rabbit.__proto__ = animal; // 设置 rabbit.[[Prototype]] = animal
+```
+
+现在，如果我们从 rabbit 中读取一个它没有的属性，JavaScript 会自动从 animal 中获取。
+
+例如：
+
+```js
+let animal = {
+  eats: true,
+};
+let rabbit = {
+  jumps: true,
+};
+
+rabbit.__proto__ = animal; // (*)
+
+// 现在这两个属性我们都能在 rabbit 中找到：
+alert(rabbit.eats); // true (**)
+alert(rabbit.jumps); // true
+```
+
+这里的 (\*) 行将 animal 设置为 rabbit 的原型。
+
+当 alert 试图读取 rabbit.eats (\*\*) 时，因为它不存在于 rabbit 中，所以 JavaScript 会顺着 [[Prototype]] 引用，在 animal 中查找（自下而上）：
+
+原型链可以很长：
+
+```js
+let animal = {
+  eats: true,
+  walk() {
+    alert("Animal walk");
+  },
+};
+
+let rabbit = {
+  jumps: true,
+  __proto__: animal,
+};
+
+let longEar = {
+  earLength: 10,
+  __proto__: rabbit,
+};
+
+// walk 是通过原型链获得的
+longEar.walk(); // Animal walk
+alert(longEar.jumps); // true（从 rabbit）
+```
+这里只有两个限制：
+1. 引用不能形成闭环。如果我们试图在一个闭环中分配 `__proto__`，JavaScript 会抛出错误。
+1. `__proto__` 的值可以是对象，也可以是 null。而其他的类型都会被忽略。
+
+当然，这可能很显而易见，但是仍然要强调：只能有一个 [[Prototype]]。一个对象不能从其他两个对象获得继承。
+
+:::tips
+但是你可以通过解构赋值来使得一个对象继承自"多个"对象
+:::
+
+```js 
+const a = {
+  a: 1
+}
+
+const b = {
+  b: 2
+}
+
+const c = {
+  c: 3
+}
+
+a.__proto__ = {...b, ...c}
+
+console.log(a.b, a.c) // 2, 3
+```
+
