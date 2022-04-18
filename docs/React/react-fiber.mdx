@@ -6,3 +6,89 @@ import CodeSandBox from "../../components/doc/CodeSandBox";
 import AuthorInfo from "../../components/doc/AuthorInfo";
 
 <AuthorInfo />
+
+## What is React Fiber?
+
+React 团队在 React16.8 引入了 hooks,基本上大大改善了开发的模式。其实 React 在这个时期也对内部的运作进行了重构,也就是 React Fiber Architecture。
+这个架构也是未来 React 许多新功能的基础,例如: `Concurrent Mode`。
+
+:::tip
+其实 React Hooks 得以实现也是因为 React 使用 Fiber 架构重构据。
+:::
+
+以宏观角度来看,React Fiber 指的是 source code 经过重构后的一种全新架构,不过从狭义的角度来看,fiber 其实是一个拥有许多属性的 Javascript 物件,长得像下面这样;
+
+```js
+{
+  stateNode: new ClickCounter,
+  type: ClickCounter,
+  alternate: null,
+  key: null,
+  updateQueue: null,
+  memoizedState: {count: 0},
+  pendingProps: {},
+  memoizedProps: {},
+  tag:1 ,
+  effectTag: 0,
+  nextEffect: null,
+}
+```
+
+而 fiber 也代表`An unit of work for React to process.`,也许有的抽象难懂,但目前我们先停在这里。
+
+## What can fiber do?
+
+重构后的 React Fiber 架构改变了什么?
+
+- Animation 动画
+- Responsiveness 反应能力
+
+我们可以在下面的两个网站清晰的看到这些特点
+
+- [React With Fiber](https://claudiopro.github.io/react-fiber-vs-stack-demo/fiber.html)
+- [React Without Fiber](https://claudiopro.github.io/react-fiber-vs-stack-demo/stack.html)
+
+当然在一般的应用是不会有这么明显的差别的,以上的范例都是"刻意为之",但当你的应用非常复杂并且非常吃效能时,以上的情况就有可能发生。
+
+fiber 架构可以达成这样的改变的原因主要是:
+
+- fiber 可以将页面渲染任务切分成 chunks
+- 不同的任务可以经过 prioritize 区分优先级
+- 任务可以暂停再继续执行,(这也是将任务分优先级的原因,当做到一半出现更高优先级的任务时,会希望暂停当前任务,等处理完优先级更高的任务之后,再执行当前任务)
+- 可以重复使用之前的 work,也可以将不需要的 work 丢弃掉
+
+现代的 web 应用中最想要避免的无非是两种糟糕的情况:
+
+- 页面卡顿
+- 没有内容的白屏页面
+
+会造成这两种问题的原因很大可能是出自于 CPU 的瓶颈与 IO 的瓶颈(网络请求),而 React Fiber 就是为解决这些问题而诞生的架构据。
+
+## JSX -> React Element -> Fiber Node
+
+React 开发者对 JSX 语法十分熟悉,React 在背后会通过`React.createElement`这个 Fucntion 来将 JSX 中的 Element 转换成 React Element,这个过程就是`JSX -> React Element`。
+
+![img](https://miro.medium.com/max/1400/1*UGi-KfQAn8xr6xmPquMK6A.png)
+
+从上图可知 React Element 也是一个 Javascript 对象,记载了 element 的一些 properties 例如 type,key,props 等等,在 fiber 架构下,react 会透过 createFiberFormTypeAndProps 这个 Function 将 React Element 转换成 fiber Node,这个过程就是`React Element -> Fiber Node`。
+
+![img](https://miro.medium.com/max/1400/1*cLIvMtIoisHlkNO2lRHBdQ.png)
+
+我们可以归纳一下目前为止对 fiber 的认知:
+
+- 会形成一个有 fiber nodes 串起来的 tree(我们都知道再写 component 的时候是树状结构, 理所当然由它转换而来的 React Element 与接着由 React Elements 再次转换而成的 fiber nodes 也会是树状结构)
+- fiber node 其实代表了 React Element,但它涵盖了更多属性
+- fiber = unit of work for react to process
+- React Fiber 会经过两个阶段的处理过程: 1. Render Phase(非同步) 2. Commit Phase(同步)
+
+## React Reconciliation
+
+谈到 React 怎么更新我们的画面,大家应该都知道 React 透过 Vitrual DOM 还有 Diff 算法算出实际需要更新的部分, 比对更新前后的 Vitual DOM 的差异之后,再去更改真实 DOM,有效减少渲染此数,而这个 Diff 的过程也被称作`Reconciliation`
+
+会提到React Reconciliation是因为fiber的出现最主要改变的就是React的reconciliation流程,这些稍后再说明。
+
+再fiber架构之前React渲染页面主要经过两个阶段
+
+- Reconciler: 负责找出需要变动的原件,也就是上面提到的演算法,这个阶段可以再细分成两个stage: render phase和commit phase。
+  在render phase这个阶段React会更新数据生成新的Vitural DOM,然后通过Diff算法比对新旧的Vitural DOM,得到需要更新的元素,放到update queue中,commit phase这个阶段,React会遍历update queue,将需要的变更**一次性**渲染到DOM上。
+- Renderer: 负责将变化的原件渲染到画面上,
