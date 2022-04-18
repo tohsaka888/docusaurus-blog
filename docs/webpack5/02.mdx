@@ -1,0 +1,87 @@
+---
+title: 入口起点(entry points)
+sidebar_position: 0
+---
+
+## 单个入口（简写）语法
+
+用法：`entry: string | [string]`
+
+```js title="webpack.config.js"
+module.exports = {
+  entry: "./path/to/my/entry/file.js",
+};
+```
+
+`entry`属性的单个入口语法，是以下形式的简写：
+
+```js title="webpack.config.js"
+module.exports = {
+  entry: {
+    main: "./path/to/my/entry/file.js",
+  },
+};
+```
+
+我们也可以将一个文件路径数组传递给 entry 属性，这将创建一个所谓的 "multi-main entry"。在你想要一次注入多个依赖文件，并且将它们的依赖关系绘制在一个 "chunk" 中时，这种方式就很有用。
+
+```js title="webpack.config.js"
+module.exports = {
+  entry: ["./src/file_1.js", "./src/file_2.js"],
+  output: {
+    filename: "bundle.js",
+  },
+};
+```
+
+当你希望通过一个入口（例如一个库）为应用程序或工具快速设置 webpack 配置时，单一入口的语法方式是不错的选择。然而，使用这种语法方式来扩展或调整配置的灵活性不大。
+
+## 对象语法
+
+用法：`entry: { <entryChunkName> string | [string] } | {}`
+
+```js title="webpack.config.js"
+module.exports = {
+  entry: {
+    app: "./src/app.js",
+    adminApp: "./src/adminApp.js",
+  },
+};
+```
+
+对象语法会比较繁琐。然而，这是应用程序中定义入口的最可扩展的方式。
+
+:::tip
+“webpack 配置的可扩展” 是指，这些配置可以重复使用，并且可以与其他配置组合使用。这是一种流行的技术，用于将关注点从环境(environment)、构建目标(build target)、运行时(runtime)中分离。然后使用专门的工具（如 webpack-merge）将它们合并起来。
+:::
+
+:::tip
+当你通过插件生成入口时，你可以传递空对象 {} 给 entry。
+:::
+
+## 描述入口的对象
+
+用于描述入口的对象。你可以使用如下属性：
+
+- `dependOn`: 当前入口所依赖的入口。它们必须在该入口被加载前被加载。
+- `filename`: 指定要输出的文件名称。
+- `import`: 启动时需加载的模块。
+- `library`: 指定 library 选项，为当前 entry 构建一个 library。
+- `runtime`: 运行时 chunk 的名字。如果设置了，就会创建一个新的运行时 chunk。在 webpack 5.43.0 之后可将其设为 false 以避免一个新的运行时 chunk。
+- `publicPath`: 当该入口的输出文件在浏览器中被引用时，为它们指定一个公共 URL 地址。请查看 output.publicPath。
+
+```js title="webpack.config.js"
+module.exports = {
+  entry: {
+    a2: "dependingfile.js",
+    b2: {
+      dependOn: "a2",
+      import: "./src/app.js",
+    },
+  },
+};
+```
+```bash npm2yarn
+npm install --save-dev style-loader css-loader
+```
+
