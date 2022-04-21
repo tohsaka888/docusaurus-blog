@@ -1,0 +1,134 @@
+---
+title: 给定前序中序遍历求后序遍历
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 解法
+
+```js
+/**
+ * 前序中序求后序
+ * @param {number[]} preOrder
+ * @param {number[]} inOrder
+ * @returns {number[]}
+ */
+function toPostorderTraversal(preOrder, inOrder) {
+  // 存放后序遍历结果
+  let result = [];
+  // 闭包, 防止result递归被初始化
+  function postorder(preOrder, inOrder) {
+    // 如果出现为空的情况,说明有一侧全为左子树或者右子树
+    // 需要中断,不然会一直递归
+    if (preOrder.length === 0 || inOrder.length === 0) {
+      return null;
+    }
+    // 递归结束条件1, 当前树无左右子树
+    if (preOrder.length === 1) {
+      result.push(...preOrder);
+      return null;
+    }
+    // 递归结束条件2, 剩余左子树或者右子树只有两个节点
+    // 无论中序遍历是[1, 2]还是[2, 1],前序和后序结果都相反
+    // 因为前序根节点最先输出,后序根节点最后输出
+    // 加上可以优化性能?
+    if (preOrder.length === 2) {
+      result.push(...preOrder.reverse());
+      return null;
+    }
+    // 获取根节点
+    let root = preOrder[0];
+    // 获取根节点在中序遍历中的位置
+    let rootIndex = inOrder.findIndex((element) => element === root);
+    // 获取当前根节点的左子树的中序遍历
+    let inLeftTree = inOrder.slice(0, rootIndex);
+    // 获取当前根节点左子树的前序遍历
+    // 计算方法, 中序遍历结果的节点个数就是当前左子树的个数
+    // 除了根节点之外,截取相同节点即为前序遍历结果
+    let preLeftTree = preOrder.slice(1, inLeftTree.length + 1);
+    // 递归左子树
+    postorder(preLeftTree, inLeftTree);
+    // 思路同左子树
+    let inRightTree = inOrder.slice(rootIndex + 1, inOrder.length);
+    let preRightTree = preOrder.slice(inLeftTree.length + 1, preOrder.length);
+    // console.log(preRightTree, inRightTree)
+    // 递归遍历右子树
+    postorder(preRightTree, inRightTree);
+    // 最后插入根节点, 实现左右根的后序遍历
+    result.push(root);
+  }
+  // 执行递归函数
+  postorder(preOrder, inOrder);
+  return result;
+}
+```
+
+## 优化后
+
+```js
+/**
+ * 前序中序求后序
+ * @param {number[]} preOrder
+ * @param {number[]} inOrder
+ * @returns {number[]}
+ */
+function toPostorderTraversal(preOrder, inOrder) {
+  // 存放后序遍历结果
+  let result = [];
+  // 闭包, 防止result递归被初始化
+  function postorder(preOrder, inOrder) {
+    // 如果出现为空的情况,说明有一侧全为左子树或者右子树
+    // 需要中断,不然会一直递归
+    // if (preOrder.length === 0 || inOrder.length === 0) {
+    //   return null
+    // }
+    // // 递归结束条件1, 当前树无左右子树
+    // if (preOrder.length === 1) {
+    //   result.push(...preOrder)
+    //   return null
+    // }
+    // 递归结束条件2, 剩余左子树或者右子树只有两个节点
+    // 无论中序遍历是[1, 2]还是[2, 1],前序和后序结果都相反
+    // 因为前序根节点最先输出,后序根节点最后输出
+    // 加上可以优化性能?
+    // if (preOrder.length === 2) {
+    //   result.push(...preOrder.reverse())
+    //   return null
+    // }
+    // 获取根节点
+    let root = preOrder[0];
+    // 获取根节点在中序遍历中的位置
+    let rootIndex = inOrder.findIndex((element) => element === root);
+    // 说明有一侧全为左子树或者右子树
+    if (rootIndex === 0 || rootIndex === inOrder.length - 1) {
+      result.push(...preOrder.reverse());
+      return null;
+    }
+    // 获取当前根节点的左子树的中序遍历
+    let inLeftTree = inOrder.slice(0, rootIndex);
+    // 获取当前根节点左子树的前序遍历
+    // 计算方法, 中序遍历结果的节点个数就是当前左子树的个数
+    // 除了根节点之外,截取相同节点即为前序遍历结果
+    let preLeftTree = preOrder.slice(1, inLeftTree.length + 1);
+    // 递归左子树
+    postorder(preLeftTree, inLeftTree);
+    // 思路同左子树
+    let inRightTree = inOrder.slice(rootIndex + 1, inOrder.length);
+    let preRightTree = preOrder.slice(inLeftTree.length + 1, preOrder.length);
+    // console.log(preRightTree, inRightTree)
+    // 递归遍历右子树
+    postorder(preRightTree, inRightTree);
+    // 最后插入根节点, 实现左右根的后序遍历
+    result.push(root);
+  }
+  // 执行递归函数
+  postorder(preOrder, inOrder);
+  return result;
+}
+
+let res = toPostorderTraversal([1, 2, 3, 4], [4, 3, 2, 1]);
+console.log(res);
+```

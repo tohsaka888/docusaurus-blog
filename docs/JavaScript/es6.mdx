@@ -1,0 +1,151 @@
+---
+title: ES6
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## let 和 const
+
+`let`: 只在代码块中有效
+`var`: 存在变量提升的现象,相当于全局变量
+`const`: 定义字面量,生命周期和`let`一样,不能修改,定义必须要赋值
+
+## 解构赋值
+
+适用对象和数组
+
+### 数组特殊用法-交换两个元素的值
+
+```js
+// 交换两个元素的值, 不需要使用中间变量
+[a, b] = [b, a];
+```
+
+## 字符串新增
+
+- 加强了 Unicode 编码的支持
+- 支持模板字符串
+- 可以进行`for of`遍历
+- `includes` 判断是否找到了字串
+- `startWith` 判断字串是否在头部
+- `endWith` 判断字串是否在尾部
+- `repeat` 将目标字符串重复 n 次(n 为传递参数)
+  ```js
+  "abc".repeat(3); // 'abcabcabc'
+  ```
+- `padStart` 将字符串填充到指定长度,不足部分用指定字符填充
+  ```js
+  // 如果用来补全的字符串与原字符串，两者的长度之和超过了最大长度，则会截去超出位数的补全字符串。
+  "abc".padStart(10, "0"); // '000000000abc'
+  "abc".padStart(10, "0123456789"); // '0123456abc'
+  ```
+- `padEnd` 将字符串填充到指定长度,不足部分用指定字符填充
+
+  ```js
+  // 如果用来补全的字符串与原字符串，两者的长度之和超过了最大长度，则会截去超出位数的补全字符串。
+  "abc".padEnd(10, "0"); // 'abc000000000'
+  "abc".padEnd(10, "0123456789"); // 'abc0123456'
+  ```
+
+- `trim` 去除字符串两端的空格
+  ```js
+  "  abc  ".trim(); // 'abc'
+  ```
+- `trimLeft` 去除字符串左端的空格
+  ```js
+  "  abc  ".trimLeft(); // 'abc  '
+  ```
+- `trimRight` 去除字符串右端的空格
+  ```js
+  "  abc  ".trimRight(); // '  abc'
+  ```
+
+## 函数相关
+
+- 函数参数可赋默认值
+
+  ```js
+  function add(x, y = 1) {
+    return x + y;
+  }
+  ```
+
+- rest 参数
+
+  ```js
+  function add(...values) {
+    let sum = 0;
+    for (let val of values) {
+      sum += val;
+    }
+    return sum;
+  }
+  ```
+
+- 箭头函数
+
+  ```js
+  let add = (x, y) => {
+    return x + y;
+  };
+  ```
+
+  箭头函数注意事项
+
+  - 箭头函数没有自己的 this 对象。
+  - 箭头函数不可作为构造函数使用。
+  - 箭头函数不可以使用 arguments 对象。
+  - 箭头函数不能用作 Generator 函数。
+  - bind,call,apply 函数不能用于箭头函数。
+
+- 尾调用优化
+  :::info 什么是尾调用
+  尾调用（Tail Call）是函数式编程的一个重要概念，本身非常简单，一句话就能说清楚，就是指某个函数的最后一步是调用另一个函数。
+
+  ```js
+  function f(x) {
+    return g(x);
+  }
+  ```
+
+  上面代码中，函数 f 的最后一步是调用函数 g，这就叫尾调用。
+  以下三种情况，都不属于尾调用。
+
+  ```js
+  // 情况一
+  function f(x) {
+    let y = g(x);
+    return y;
+  }
+
+  // 情况二
+  function f(x) {
+    return g(x) + 1;
+  }
+
+  // 情况三
+  function f(x) {
+    g(x);
+  }
+  ```
+
+  尾调用不一定出现在函数尾部，只要是最后一步操作即可。
+
+  ```js
+  function f(x) {
+    if (x > 0) {
+      return m(x);
+    }
+    return n(x);
+  }
+  ```
+
+  上面代码中，函数 m 和 n 都属于尾调用，因为它们都是函数 f 的最后一步操作。
+  :::
+
+- 
+
+
