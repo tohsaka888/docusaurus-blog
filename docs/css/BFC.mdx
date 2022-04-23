@@ -1,0 +1,48 @@
+---
+title: css毛玻璃特效
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## BFC是什么
+
+块格式化上下文（Block Formatting Context，BFC） 是Web页面的可视CSS渲染的一部分，是块盒子的布局过程发生的区域，也是浮动元素与其他元素交互的区域。
+
+## 如何创建
+
+下列方式会创建块格式化上下文：
+
+- 根元素
+- 浮动元素（元素的 float 不是 none）
+- 绝对定位元素（元素的 position 为 absolute 或 fixed）
+- 行内块元素（元素的 display 为 inline-block）
+- 表格单元格（元素的 display 为 table-cell，HTML表格单元格默认为该值）
+- 表格标题（元素的 display 为 table-caption，HTML表格标题默认为该值）
+- overflow 计算值(Computed)不为 visible 的块元素
+- 弹性元素（display 为 flex 或 inline-flex 元素的直接子元素）
+- 网格元素（display 为 grid 或 inline-grid 元素的直接子元素）
+
+## BFC布局规则
+
+1. 内部的BOX会在垂直方向,一行一行的排列
+1. Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠
+1. 每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。
+1. BFC的区域不会与float box重叠。
+1. BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
+1. 计算BFC的高度时，浮动元素也参与计算
+
+## BFC的作用
+
+1. 自适应两栏布局
+1. 可以阻止元素被浮动元素挡住
+1. 可以包含浮动元素,清除内部浮动
+1. 分属于不同的BFC时可以阻止margin重叠
+
+## 盒子塌陷
+
+在一个BFC中的两个Box的margin会重叠
+
+
