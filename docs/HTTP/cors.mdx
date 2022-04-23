@@ -1,0 +1,95 @@
+---
+title: HTTP跨域
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 介绍
+
+`cors`是一种基于 HTTP 头的机制,该机制允许服务器标识除了他自己以外的 origin(域协议端口),使得浏览器允许这些 origin 访问加载自己的资源。
+
+出于安全性，浏览器限制脚本内发起的跨源 HTTP 请求。 例如，XMLHttpRequest 和 Fetch API 遵循同源策略。这意味着使用这些 API 的 Web 应用程序只能从加载应用程序的同一个域请求 HTTP 资源，除非响应报文包含了正确 CORS 响应头。
+
+:::Tips
+同域的条件是协议相同,域名相同且端口相同,三者有一着不同就不是同域
+
+- `http://czu.com/` 和`https://czu.com/` 不是同域, 协议不同
+- `https://czu.com/` 和`https://czu.com:8080/` 不是同域, 协议相同,域名相同,端口不同
+- `https://czua.com:8080/` 和`https://czub.com:8080/` 不是同域, 协议相同,域名不同,端口相同
+- `https://czu.com:8080/` 和`https://czu.com:8080/` 是同域, 协议相同,域名相同,端口相同
+
+:::
+
+## 功能概述
+
+跨源资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。另外，规范要求，对那些可能对服务器数据产生副作用的 HTTP 请求方法（特别是 GET 以外的 HTTP 请求，或者搭配某些 MIME 类型 的 POST 请求），浏览器必须首先使用 OPTIONS 方法发起一个预检请求（preflight request），从而获知服务端是否允许该跨源请求。服务器确认允许之后，才发起实际的 HTTP 请求。在预检请求的返回中，服务器端也可以通知客户端，是否需要携带身份凭证（包括 Cookies 和 HTTP 认证 相关数据）。
+
+## 简单请求
+
+简单请求是不会触发`cors`,只要满足一下三个条件,他就是简单请求
+
+- 使用下列方法之一
+- GET
+- HEAD
+- POST
+- 除了被用户代理自动设置的首部字段,和`fetch`规范定义的`对cors安全的首部字段`
+- Accept
+- Accept-Language
+- Content-Language
+- Content-Type
+- Content-Type 的值仅限以下三者之一
+- application/x-www-form-urlencoded (那些?username=xxx&password=xxx 的 url)
+- multipart/form-data
+- text/plain
+
+:::error
+也就是说 JSON 数据传输的 POST 请求,需要跨域
+:::
+
+## 常见跨域 Response header
+
+### Access-Control-Allow-Origin
+
+```js
+Access-Control-Allow-Origin: <origin> | *
+```
+
+其中，origin 参数的值指定了允许访问该资源的外域 URI。对于不需要携带身份凭证的请求，服务器可以指定该字段的值为通配符，表示允许来自所有域的请求。
+
+如果服务端指定了具体的域名而非“\*”，那么响应首部中的 Vary 字段的值必须包含 Origin。这将告诉客户端：服务器对不同的源站返回不同的内容。
+
+:::Tips
+Vary 是一个 HTTP 响应头部信息，它决定了对于未来的一个请求头，应该用一个缓存的回复(response)还是向源服务器请求一个新的回复。它被服务器用来表明在 content negotiation algorithm（内容协商算法）中选择一个资源代表的时候应该使用哪些头部信息（headers）.
+
+在响应状态码为 304 Not Modified 的响应中，也要设置 Vary 首部，而且要与相应的 200 OK 响应设置得一模一样。
+:::
+
+### Access-Control-Max-Age
+
+Access-Control-Max-Age 头指定了 preflight 请求的结果能够被缓存多久
+
+### Access-Control-Allow-Credentials
+
+Access-Control-Allow-Credentials 头指定了当浏览器的 credentials 设置为 true 时是否允许浏览器读取 response 的内容。当用在对 preflight 预检测请求的响应中时，它指定了实际的请求是否可以使用 credentials。请注意：简单 GET 请求不会被预检；如果对此类请求的响应中不包含该字段，这个响应将被忽略掉，并且浏览器也不会将相应内容返回给网页。
+
+### Access-Control-Allow-Methods
+
+Access-Control-Allow-Methods 首部字段用于预检请求的响应。其指明了实际请求所允许使用的 HTTP 方法。
+
+### Access-Control-Allow-Headers
+
+Access-Control-Allow-Headers 首部字段用于预检请求的响应。其指明了实际请求中允许携带的首部字段。
+
+## HTTP 请求首部字段
+
+### Access-Control-Request-Method
+
+Access-Control-Request-Method 首部字段用于预检请求。其作用是，将实际请求所使用的 HTTP 方法告诉服务器。
+
+### Access-Control-Request-Headers
+
+Access-Control-Request-Headers 首部字段用于预检请求。其作用是，将实际请求所携带的首部字段告诉服务器。
+
