@@ -1,0 +1,60 @@
+---
+title: HTML5 及 CSS3
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## HTML5 新特性语义化
+
+HTML5 语义化指的是: 合理的使用语义化的标签来创建页面结构
+
+语义化标签有:
+
+- header
+- nav
+- article
+- section
+- footer
+- aside
+- footer
+
+语义化的优点有:
+
+- 在没有 css 样式的情况下,页面也会呈现良好的结构效果
+- 代码结构清晰,易于阅读
+- 有利于开发和维护
+- 有利于 SEO,搜索引擎会根据不同的标签来赋予不同的权重
+
+## HTML 常见结构
+
+- `<!DOCTYPE html>` DOCTYPE 用来链接一些 HTML 编写守则，比如自动查错之类。DOCTYPE 在当今作用有限，仅用于保证文档正常读取。
+- `<html>` 标签是 HTML 文档的开始，它包含了文档的所有元素。也成为根元素
+- `<head>` 标签是 HTML 文档的头部，它包含了文档的标题、元数据、描述、编码、样式表、脚本、图像、以及其他头部信息。对用户不可见
+- `<body>` 该元素包含期望让用户在访问页面时看到的内容，包括文本、图像、视频、游戏、可播放的音轨或其他内容。
+- `<title>` 标签是 HTML 文档的标题，它包含了文档的名称。
+
+## css 优先级
+
+- `!important`
+- 内联样式
+- id 选择器
+- 类选择器/属性选择器/伪类选择器
+- 元素选择器/伪元素选择器
+- 关系选择器/通配符选择器
+
+## `position`属性的值有哪些及其区别
+
+- static
+  - 默认值,无定位,元素出现在正常文档流中(忽略 top,left,bottom,right 或者 z-index)
+- relative
+  - 该关键字下，元素先放置在未添加定位时的位置，再在不改变页面布局的前提下调整元素位置（因此会在此元素未添加定位时所在位置留下空白）
+- absolute
+  - 元素会被移出正常文档流，并不为元素预留空间，通过指定元素相对于最近的非 static 定位祖先元素的偏移，来确定元素位置。绝对定位的元素可以设置外边距（margins），且不会与其他边距合并。
+- fixed
+  - 元素会被移出正常文档流，并不为元素预留空间，而是通过指定元素相对于屏幕视口（viewport）的位置来指定元素位置。元素的位置在屏幕滚动时不会改变。打印时，元素会出现在的每页的固定位置。fixed 属性会创建新的层叠上下文。当元素祖先的 transform, perspective 或 filter 属性非 none 时，容器由视口改为该祖先。
+- sticky
+  - 元素根据正常文档流进行定位，然后相对它的最近滚动祖先（nearest scrolling ancestor）和 containing block (最近块级祖先 nearest block-level ancestor)，包括 table-related 元素，基于 top, right, bottom, 和 left 的值进行偏移。偏移值不会影响任何其他元素的位置。
+    该值总是创建一个新的层叠上下文（stacking context）。注意，一个 sticky 元素会“固定”在离它最近的一个拥有“滚动机制”的祖先上（当该祖先的 overflow 是 hidden, scroll, auto, 或 overlay 时），即便这个祖先不是最近的真实可滚动祖先。这有效地抑制了任何“sticky”行为
