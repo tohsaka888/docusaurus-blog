@@ -58,3 +58,51 @@ HTML5 语义化指的是: 合理的使用语义化的标签来创建页面结构
 - sticky
   - 元素根据正常文档流进行定位，然后相对它的最近滚动祖先（nearest scrolling ancestor）和 containing block (最近块级祖先 nearest block-level ancestor)，包括 table-related 元素，基于 top, right, bottom, 和 left 的值进行偏移。偏移值不会影响任何其他元素的位置。
     该值总是创建一个新的层叠上下文（stacking context）。注意，一个 sticky 元素会“固定”在离它最近的一个拥有“滚动机制”的祖先上（当该祖先的 overflow 是 hidden, scroll, auto, 或 overlay 时），即便这个祖先不是最近的真实可滚动祖先。这有效地抑制了任何“sticky”行为
+
+## box-sizing 属性
+
+`content-box`: 宽度和高度是包含内容的宽度和高度,在宽度和高度之外绘制元素的内边距和边框 [标准盒子模型]
+`border-box`: 为元素设置的高度和宽度包含内容和边框 [IE 盒子模型]
+`inherit`: 继承父元素的值
+
+## css 盒子模型
+
+CSS 中的盒子模型包括 IE 盒子模型和标准的 W3C 盒子模型。
+在标准的盒子模型中，width 指 content 部分的宽度。
+在 IE 盒子模型中，width 表示 content+padding+border 这三个部分的宽度。
+
+故在计算盒子的宽度时存在差异：
+标准盒子模型：一个块级元素的总宽度 = width + margin + padding + border
+怪异盒子模型: 一个块的总宽度 = width + margin (width包含了padding和border)
+
+## BFC 
+
+### BFC概念
+
+BFC 是 Block Formatting Context 的缩写，即块级格式化上下文。BFC是CSS布局的一个概念，是一个独立的渲染区域，规定了内部box如何布局， 并且这个区域的子元素不会影响到外面的元素，其中比较重要的布局规则有内部 box 垂直放置，计算 BFC 的高度的时候，浮动元素也参与计算。
+
+### BFC 布局规则
+
+- 内部Box会在垂直方向,一个接一个的放置
+- Box垂直方向的距离由margin决定,同一个BFC内的两个BOX的margin会放生重叠
+- 每个元素的margin box的左边,与包含块border box的左边接触
+- BFC是一个独立容器，容器里面的子元素不会影响到外面的元素
+- 计算BFC的高度时，浮动元素也参与计算高度
+- 元素的类型和display属性，决定了这个Box的类型。不同类型的Box会参与不同的Formatting Context
+
+### 创建BFC
+- 根元素即`<html>`
+- float的值不为`none`
+- 元素的position属性为`fixed`和`absolute`
+- overflow的值不为`visible`
+- display为`inline-block` `flex` `inline-flex` `grid` `inline-grid`
+- display为`flow-root`
+
+### BFC使用场景
+
+- 去除边距重叠现想 -- 创建两个BFC
+- 清除浮动 让父元素的高度包含子浮动元素
+- 避免某元素被浮动元素覆盖
+
+
+

@@ -1,0 +1,18 @@
+---
+title: 性能优化
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 抽离改变的部分
+
+最简单的性能优化就是抽离出改变的部分从而不会导致那些不需要重新创建的组件 rerender。
+
+例如:
+
+<CodeSandBox url="https://codesandbox.io/embed/performance-optimization-2qcfex?fontsize=14&hidenavigation=1&" />
+
+所以如果代码组织好,你可能并不需要性能优化Api
