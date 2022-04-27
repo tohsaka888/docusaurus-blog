@@ -15,4 +15,81 @@ import AuthorInfo from "../../components/doc/AuthorInfo";
 
 <CodeSandBox url="https://codesandbox.io/embed/performance-optimization-2qcfex?fontsize=14&hidenavigation=1&" />
 
-所以如果代码组织好,你可能并不需要性能优化Api
+所以如果代码组织好,你可能并不需要性能优化 Api
+
+再看下面这个例子:
+
+<CodeSandBox url="https://codesandbox.io/embed/awesome-mccarthy-ktu38l?fontsize=14&hidenavigation=1&" />
+
+我们只需要封装一层`Wrapper`就可以实现性能优化
+
+:::tip 核心思想
+将**变的部分**和**不变的部分**分离
+变得部分是什么?
+
+- props
+- state
+- context
+
+当子组件这三个部分都不变时就没必要 render,也就是所谓的"性能优化"
+:::
+
+但是这么做有一个问题,当我们没有传递 props 时,这个组件一定不会 rerender 吗?
+
+并不是! 没有 props,并不意味着组件没有 props,实际上组件的 props 是一个空对象{},所以每次重新全等比较的时候两次的 props 都是不一样的,所以组件一定会 rerender
+
+React 比较 props 默认为全等比较,高效,但不容易命中
+
+## React.memo
+
+如果你的组件在相同 props 的情况下渲染相同的结果，那么你可以通过将其包装在 React.memo 中调用，以此通过记忆组件渲染结果的方式来提高组件的性能表现。这意味着在这种情况下，React 将跳过渲染组件的操作并直接复用最近一次渲染的结果。
+
+React.memo 仅检查 props 变更。如果函数组件被 React.memo 包裹，且其实现中拥有 useState，useReducer 或 useContext 的 Hook，当 state 或 context 发生变化时，它仍会重新渲染。
+
+默认情况下其只会对复杂对象做**浅层对比**，如果你想要控制对比过程，那么请将自定义的比较函数通过第二个参数传入来实现。
+
+## useMemo & useCallback
+
+把“创建”函数和依赖项数组作为参数传入 useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+如果没有提供依赖项数组，useMemo 在每次渲染时都会计算新的值。
+
+你可以把 useMemo 作为性能优化的手段，但不要把它当成语义上的保证。将来，React 可能会选择“遗忘”以前的一些 memoized 值，并在下次渲染时重新计算它们，比如为离屏组件释放内存。先编写在没有 useMemo 的情况下也可以执行的代码 —— 之后再在你的代码中添加 useMemo，以达到优化性能的目的。
+
+## useCallback
+
+## React18
+
+### Concurrent 并发渲染
+
+并发本身不是一个特性。这是一种新的幕后机制，使 React 能够同时准备多个版本的 UI。您可以将并发视为一个实现细节——它之所以有价值，是因为它解锁了一些特性。React 在其内部实现中使用了复杂的技术，例如优先级队列和多重缓冲。但是您不会在我们的公共 API 中的任何地方看到这些概念。
+Concurrent React 的一个关键属性是渲染是可中断的。React 可能会开始渲染更新，在中间暂停，然后再继续。它甚至可能完全放弃正在进行的渲染。React 保证即使渲染被中断，UI 也会保持一致。
+
+### auto-batching 批处理
+
+批处理是 React 将多个状态更新分组到一个重新渲染中以获得更好的性能。如果没有自动批处理，我们只能在 React 事件处理程序中批处理更新。默认情况下，Promise、setTimeout、本机事件处理程序或任何其他事件内部的更新不会在 React 中批处理。使用自动批处理，这些更新将自动批处理
+
+## 懒加载 React.lazy + Suspense
+
+本来不想题这个,按照 React18 的预想其实并不需要用到 React.lazy,只需要用到 Suspense 即可达到性能优化
+
+奈何实际尝试了之后发现,react18.0 版本的 Suspence 竟然是阉割的......
+
+React.Suspense 可以指定加载指示器（loading indicator），以防其组件树中的某些子组件尚未具备渲染条件。在未来，我们计划让 Suspense 处理更多的场景，如数据获取等。
+
+如今，懒加载组件是 `<React.Suspense>` 支持的唯一用例：
+
+```jsx
+// 该组件是动态加载的
+const OtherComponent = React.lazy(() => import("./OtherComponent"));
+
+function MyComponent() {
+  return (
+    // 显示 <Spinner> 组件直至 OtherComponent 加载完成
+    <React.Suspense fallback={<Spinner />}>
+      <div>
+        <OtherComponent />
+      </div>
+    </React.Suspense>
+  );
+}
+```
