@@ -1,0 +1,219 @@
+---
+title: 正则表达式
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+创建一个正则表达式对象有两种语法。
+
+```js
+regexp = new RegExp(pattern, flags);
+```
+
+或者
+
+```js
+regexp = /pattern/flags;
+regexp = /pattern/gmi
+```
+
+斜杠 "/" 会告诉 JavaScript 我们正在创建一个正则表达式。它的作用类似于字符串的引号。
+
+## 用法
+
+在字符串中搜素匹配的内容,可以用`search`方法
+
+```js
+let str = "I love JavaScript";
+
+let regexp = /JavaScript/;
+
+console.log(str.search(regexp));
+```
+
+`str.search`方法会查找模式(`pattern`)`/JavaScript/`,然后返回匹配项在字符串中的位置,上述代码等价于:
+
+```js
+let str = "I love JavaScript";
+
+let substr = "JavaScript";
+console.log(str.search(substr));
+```
+
+:::info 什么时候使用后`new RegExp`?
+通常我们使用的都是简短语法,但是他不接受任何变量插入,所以我们必须在写代码前就知道确切的正则表达式
+另一方面, `new RegExp`允许从字符串中动态的构造模式
+
+所以我们可以找出需要搜索的字段,然后根据搜索字段创建正则表达式
+
+```js
+let search = prompt("What you want to search?", "love");
+let regexp = new RegExp(search);
+
+// 找到用户想要的任何东西
+alert("I love JavaScript".search(regexp));
+```
+
+:::
+
+## 修饰符
+
+### `i`
+
+使用此修饰符后，搜索时不区分大小写: A 和 a 没有区别（具体看下面的例子）。
+
+```js
+let str = "I love JavaScript!";
+
+alert(str.search(/LOVE/)); // -1（没找到）
+alert(str.search(/LOVE/i)); // 2
+```
+
+1. 第一个搜索返回的是 -1（也就是没找到），因为搜索默认是区分大小写的。
+1. 使用修饰符 /LOVE/i，在字符串的第 2 个位置上搜索到了 love。
+
+### `g`
+
+使用此修饰符后，搜索时会查找所有的匹配项，而不只是第一个（在下一章会讲到）。
+
+### `m`
+
+多行模式（详见章节 Flag "m" — 多行模式）。
+
+### `s`
+
+启用 “dotall” 模式，允许点 . 匹配换行符 \n（在 字符类 中有详细介绍）。
+
+### `u`
+
+开启完整的 unicode 支持。该修饰符能够修正对于代理对的处理。
+
+## 字符类
+
+考虑一个实际的任务 – 我们有一个电话号码，例如 "+7(903)-123-45-67"，我们需要将其转换为纯数字：79031234567。
+
+为此，我们可以查找并删除所有非数字的内容。字符类可以帮助解决这个问题。
+
+字符类（Character classes） 是一个特殊的符号，匹配特定集中的任何符号。
+
+首先，让我们探索“数字”类。它写为 \d，对应于“任何一个数字”。
+
+例如，让我们找到电话号码的第一个数字：
+
+```js
+let str = "+7(903)-123-45-67";
+
+let regexp = /\d/;
+
+console.log(str.match(regexp)); // 7
+```
+
+如果没有标志 g，则正则表达式仅查找第一个匹配项，即第一个数字 \d。
+
+让我们添加 g 标志来查找所有数字：
+
+```js
+let str = "+7(903)-123-45-67";
+
+let regexp = /\d/g;
+
+alert(str.match(regexp)); // array of matches: 7,9,0,3,1,2,3,4,5,6,7
+
+// let's make the digits-only phone number of them:
+console.log(str.match(regexp).join("")); // 79031234567
+```
+
+这是数字的字符类。还有其他字符类。
+
+### `\d` ("d"来自"digits")
+
+数字：从 0 到 9 的字符。
+
+### `\s` ("s"来自"space")
+
+空格符号：包括空格，制表符 \t，换行符 \n 和其他少数稀有字符，例如 \v，\f 和 \r。
+
+## `\w` ("w"来自"word")
+
+“单字”字符：拉丁字母或数字或下划线 \_。非拉丁字母（如西里尔字母或印地文）不属于 \w。
+
+例如，\d\s\w 表示“数字”，后跟“空格字符”，后跟“单字字符”，例如 1 a。
+正则表达式可能同时包含常规符号和字符类。
+
+例如，CSS\d 匹配字符串 CSS 与后面的数字：
+
+```js
+let str = "Is there CSS4?";
+let regexp = /CSS\d/;
+
+alert(str.match(regexp)); // CSS4
+```
+
+我们还可以使用许多字符类：
+
+```js
+alert("I love HTML5!".match(/\s\w\w\w\w\d/)); // ' HTML5'
+```
+
+## 反向类
+
+对于每个字符类，都有一个“反向类”，用相同的字母表示，但要以大写书写形式。
+
+“反向”表示它与所有其他字符匹配，例如：
+
+### `\D` ("D"来自"digits")
+
+非数字：除 \d 以外的任何字符，例如字母。
+
+### `\S` ("S"来自"space")
+
+非空格符号：除 \s 以外的任何字符，例如字母。
+
+### `\W` ("W"来自"word")
+
+非单字字符：除 \w 以外的任何字符，例如非拉丁字母或空格。
+
+在这一章的开头，我们看到了如何从 +7(903)-123-45-67 这样的字符串中创建一个只包含数字的电话号码: 找到所有的数字并将它们连接起来。
+
+```js
+str.match(/\d/g).join("");
+```
+
+或者
+
+```js
+str.replace(/\D/g, "");
+```
+
+### 点（.）是匹配“任何字符”
+
+点 . 是一种特殊字符类，它与 “除换行符之外的任何字符” 匹配。
+
+```js
+let regexp = /CS.4/;
+
+alert("CSS4".match(regexp)); // CSS4
+alert("CS-4".match(regexp)); // CS-4
+alert("CS 4".match(regexp)); // CS 4 (space is also a character)
+```
+
+请注意，点表示“任何字符”，而不是“缺少字符”。必须有一个与之匹配的字符：
+
+```js
+alert("CS4".match(/CS.4/)); // null, no match because there's no character for the dot
+```
+
+在许多情况下，当我们希望用点来表示“任何字符”（包括换行符）时。
+
+这就是标志 s 所做的。如果有一个正则表达式，则点 . 实际上匹配任何字符：
+
+```js
+alert("A\nB".match(/A.B/s)); // A\nB (match!)
+```
+
+```
+
+```

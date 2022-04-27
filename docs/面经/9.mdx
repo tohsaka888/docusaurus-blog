@@ -1,0 +1,30 @@
+---
+title: React Diff算法
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## webpack 区分开发环境与生产环境
+
+- `webpack.base.config.js`
+  - 开发环境和生产环境通用设置
+- `webpack.dev.config.js`
+  - 开发环境配置
+  - `npm`中开启dev server命令为 `webpack-dev-server --config webpack.dev.config.js`
+- `webpack.prod.config.js`
+  - 生产环境配置
+  - `npm`中开启build命令为 `webpack --config webpack.prod.config.js`
+
+## 为什么需要用到`path.resolve`
+
+因为这样做可以防止不同操作系统之间的文件路径问题,我通过封装一个`resolvePath`函数调用`path.resolve(__dirname, dir)`来将相对路径转化为绝对路径
+
+:::tip 
+`__dirname`为当前项目目录
+:::
+
+## 用到的loader
+
