@@ -2,5 +2,49 @@
 title: State Hook 注意事项
 ---
 
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
 ## 闭包问题
 
+<CodeSandBox url="https://codesandbox.io/embed/optimistic-joliot-4xtu03?fontsize=14&hidenavigation=1&" />
+
+## useEffect Deps 问题
+
+我们看如下代码
+
+```tsx
+import React, { useState, useEffect } from "react";
+
+const WrongComponent = () => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("run");
+    setCount(count + 1);
+  }, [count]);
+
+  return (
+    <>
+      <div>{count}</div>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </>
+  );
+};
+```
+
+假设我们希望在组件首次渲染时count + 1,之后点击按钮+ 1
+
+分析一下这个组件
+
+首次渲染,count + 1,此时count为1,点击按钮,count++,count = 2
+
+state改变,组件rerender,useEffect中deps改变,执行useEffect内部函数,又setCount(count + 1),count = 3
+
+芜湖,count又改变了再次rerender,再次执行useEffect,count又加一,rerender......
+
+这就是问题所造,我们并不需要这个deps,但是不加的话,编辑器又会报一个warning
+
+<CodeSandBox url="https://codesandbox.io/embed/focused-haze-7tbmjj?fontsize=14&hidenavigation=1&" />
