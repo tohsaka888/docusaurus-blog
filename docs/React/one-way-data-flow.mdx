@@ -1,0 +1,20 @@
+---
+title: 单向数据流
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+单向数据流这种模式十分适合跟 React 搭配使用。它的主要思想是组件不会改变接收的数据。它们只会监听数据的变化，当数据发生变化时它们会使用接收到的新值，而不是去修改已有的值。当组件的更新机制触发后，它们只是使用新值进行重新渲染而已。
+
+:::tip
+state hook 中的 setState 所作的事情并不是去改变 state 的值,而是创建了一个新的同名变量取代了原先的值
+:::
+
+在 react 中,我们将 state 作为 props 传递给子组件,子组件能改变它吗?
+
+当然不可以,子组件只能监听 props 的变化重新渲染,并不能改变它的值,因为 state 是 immutable,所以我们只能通过 setState 来改变它
+
+> 再次强调 setState 不是给改变 state
