@@ -39,3 +39,15 @@ import AuthorInfo from "../../components/doc/AuthorInfo";
 
 这里定义的画布尺寸是200*200px。但是，viewBox属性定义了画布上可以显示的区域：从(0,0)点开始，100宽*100高的区域。这个100*100的区域，会放到200*200的画布上显示。于是就形成了放大两倍的效果。
 
+我们结合第一节的例子试一下
+
+<CodeSandBox url="https://codesandbox.io/embed/exciting-sammet-xe6e7l?fontsize=14&hidenavigation=1&" />
+
+上面是我们第一节的实现，接下来我们使用viewBox来改造它
+
+<CodeSandBox url="https://codesandbox.io/embed/eager-dawn-tfeej0?fontsize=14&hidenavigation=1&" />
+
+这里定义的画布尺寸是200*200px。但是，viewBox属性定义了画布上可以显示的区域：从(0,0)点开始，100宽*100高的区域。这个150*100的区域，会放到300*200的画布上显示。于是就形成了放大两倍的效果。
+
+用户单位和屏幕单位的映射关系被称为用户坐标系统。除了缩放之外，坐标系统还可以旋转、倾斜、翻转。默认的用户坐标系统1用户像素等于设备上的1像素（但是设备上可能会自己定义1像素到底是多大）。在定义了具体尺寸单位的SVG中，比如单位是“cm”或“in”，最终图形会以实际大小的1比1比例呈现。
+
