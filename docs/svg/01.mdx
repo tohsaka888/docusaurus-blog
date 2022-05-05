@@ -1,0 +1,73 @@
+---
+title: 入门
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 一个简单的实例
+
+```html
+<svg version="1.1"
+     baseProfile="full"
+     width="300" height="200"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <rect width="100%" height="100%" fill="red" />
+
+  <circle cx="150" cy="100" r="80" fill="green" />
+
+  <text x="150" y="125" font-size="60" text-anchor="middle" fill="white">SVG</text>
+
+</svg>
+```
+
+:::tip
+xmlns属性意味着这个`<svg>`标签和它的子节点都属于'http://www.w3.org/2000/svg' 这个SVG命名空间。
+这个命名空间声明只需要在根节点上声明一次。这个声明定义了默认的命名空间，所以用户代理知道所有的`<svg>`标签的子标签也属于相同的命名空间。
+:::
+
+## 绘制流程
+
+1. 从`svg`的根元素开始：
+  - SVG 2之前，version属性和baseProfile属性用来供其他类型的验证识别SVG的版本。SVG 2不推荐使用version和baseProfile这两个属性。
+  - 作为XML的一种方言，SVG必须正确的绑定命名空间 
+1. 绘制一个完全覆盖图像区域的矩形 `<rect/>`，把背景颜色设为红色。
+1. 一个半径80px的绿色圆圈`circle`绘制在红色矩形的正中央 （向右偏移150px，向下偏移100px）。
+1. 绘制文字“SVG”。文字被填充为白色， 通过设置居中的锚点把文字定位到期望的位置：在这种情况下，中心点应该对应于绿色圆圈的中点。还可以精细调整字体大小和垂直位置，确保最后的样式是美观的。
+
+## SVG文件的基本属性
+- 最值得注意的一点是元素的渲染顺序。SVG文件全局有效的规则是“后来居上”，越后面的元素越可见。
+- web上的svg文件可以直接在浏览器上展示
+  - 可以通过 object 元素引用SVG文件：
+  ```html
+  <object data="image.svg" type="image/svg+xml" />
+  ```
+  - 类似的也可以使用 iframe 元素引用SVG文件
+  ```html
+  <iframe src="image.svg"></iframe>
+  ```
+  - 理论上同样可以使用 img 元素，但是在低于4.0版本的Firefox 中不起作用。
+  - 最后SVG可以通过**JavaScript动态创建并注入到HTML DOM**中。 这样具有一个优点，可以对浏览器使用替代技术，在不能解析SVG的情况下，可以替换创建的内容。
+
+## 数据交互
+
+将`svg`上传web服务器需要指定HTTP请求头
+
+```js
+Content-Type: image/svg+xml
+Vary: Accept-Encoding
+```
+
+对于gzip压缩的SVG文件，服务器应该会发送下面的HTTP头：
+
+```js
+Content-Type: image/svg+xml
+Content-Encoding: gzip
+Vary: Accept-Encoding
+```
+
+
+
