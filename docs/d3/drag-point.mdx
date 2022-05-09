@@ -1,0 +1,40 @@
+---
+title: 拖拽节点
+sidebar_position: 3
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 代码
+
+```tsx
+let pointContainer = container
+    ?.append('g')
+    .on('mouseover', function () {
+      d3.select(this).select('circle').transition().duration(500).attr("fill", "red").attr('filter', `drop-shadow(0px 0px 10px yellow)`)
+    })
+    .on('mouseout', function () {
+      d3.select(this).select('circle').transition().duration(500).attr("fill", "transparent")
+    })
+    .on('mousedown', rightEventClick)
+    // 注意类型!!!
+    .call(d3.drag<SVGGElement, unknown>()
+      .on('start', function (event, d: any) {
+        d3.select(this).select('circle').attr("stroke", "black");
+      })
+      .on('drag', function (event, d) {
+        d3.select(this).select('circle').attr("cx", event.x).attr("cy", event.y);
+        d3.select(this).select('text').attr('x', event.x).attr('y', event.y)
+      })
+      .on('end', function dragended(event, d) {
+        d3.select(this).select('circle').attr("stroke", 'red');
+      })
+    )
+```
+
+:::tip
+注意类型,不然会报错!
+:::

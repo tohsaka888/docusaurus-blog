@@ -1,0 +1,52 @@
+---
+title: 拖拽画布
+sidebar_position: 4
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 思路
+
+通过改变画布`g`的`transform`属性来实现拖拽效果。
+
+## 代码
+
+```tsx createCanvas
+const createCanvas = (
+  canvasElement: HTMLDivElement,
+  canvasDragEvent: (event: any, d: any) => void
+): D3CANVAS => {
+  const d3_canvas = d3
+    .select(canvasElement)
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .call(
+      d3
+        .drag<SVGSVGElement, unknown>()
+        .on("start", function (event, d) {
+          d3.select(this).style("cursor", "grabbing");
+        })
+        .on("drag", canvasDragEvent)
+    );
+  return d3_canvas?.append("g").attr("transform", `translate(0, 0)`);
+};
+```
+
+```tsx canvasDragEvent
+const canvasDragEvent = useCallback((e: any, d: any) => {
+  const tempArr = containerRef.current?.attr("transform").split(",");
+  // 获取当前的x和y坐标
+  const x = +(tempArr?.[0]?.split("(")[1] || 0);
+  const y = +(tempArr?.[1]?.split(")")[0] || 0);
+  // 当前坐标加上拖拽的相对坐标
+  // 即新坐标相比原坐标的偏移量
+  containerRef.current?.attr(
+    "transform",
+    `translate(${x + e.dx}, ${y + e.dy})`
+  );
+}, []);
+```

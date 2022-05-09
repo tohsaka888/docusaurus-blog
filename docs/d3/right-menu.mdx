@@ -1,0 +1,34 @@
+---
+title: 节点右键菜单
+sidebar_position: 2
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 难点与解决方案
+
+### 消除默认右键菜单
+
+- 通过`onMouseDown`事件获取`event.button`值，判断是否是鼠标右键
+- 通过`window.oncontextmenu`来取消默认右键菜单
+- 需要一个挂在在整块屏幕的绝对定位元素,用来显示右键菜单,防止右键菜单被其他元素遮挡
+- 需要通过 d3 监听`point`被右击的情况,获取到点击的坐标,通过绝对定位显示右键菜单
+
+```tsx
+const rightClickEvent = useCallback((e: React.MouseEvent) => {
+  if (e.button === 2) {
+    document.oncontextmenu = () => {
+      return false;
+    };
+    e.preventDefault();
+    setRightMenuX(e.clientX);
+    setRightMenuY(e.clientY);
+    setShow(true);
+  }
+}, []);
+```
+
+- 将如上函数传入 d3 中

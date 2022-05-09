@@ -1,0 +1,27 @@
+---
+title: 新增节点
+sidebar_position: 1
+---
+
+import CodeSandBox from "../../components/doc/CodeSandBox";
+import AuthorInfo from "../../components/doc/AuthorInfo";
+
+<AuthorInfo />
+
+## 思路
+
+- 通过`ref`存储`svg`内第一个`g`(也就是画布)
+- 通过`Controller`组件来获取新节点的`x`和`y`坐标
+- 通过`d3`在`g`(画布)上新增画新节点(`point`)
+
+:::tip point 组成部分
+
+```html
+<g>
+  <circle />
+  <text />
+</g>
+```
+
+:::
+
